@@ -1,5 +1,7 @@
 # STAIRS
 
+**S**calable **T**echnology for **A**utomotive, **I**oT and **R**obotics **S**ystems
+
 > \- I have a complex network of IoT devices and vehicles that need cloud connectivity.
 >
 > \- Have you tried using STAIRS?

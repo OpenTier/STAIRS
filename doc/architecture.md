@@ -6,43 +6,34 @@ This document outlines the architecture and main components of the STAIRS platfo
 
 STAIRS is built on a modular architecture designed for scalability, interoperability, and reliability. The platform leverages open source components to provide a comprehensive solution for automotive, IoT, and robotics systems.
 
-## Main Components
-
-### IoT Device Gateway
-Handles communication with IoT devices using various protocols, ensuring secure and reliable connections. This component is responsible for protocol translation, device authentication, and message routing.
-
-### API Gateway
-Provides a unified entry point for all client applications, handling authentication, rate limiting, and request routing. The API Gateway manages access control and serves as the interface for external systems to interact with the platform.
-
-### Data Ingestion & Stream Processing
-Manages the collection, transformation, and real-time processing of data streams from connected devices. This component handles high-volume data flows and enables immediate analysis and action on incoming data.
-
-### Data Storage
-Implements a scalable and reliable storage solution for both time-series data and structured device information. The storage layer supports different data models optimized for various query patterns and retention policies.
-
-### Analytics Engine
-Processes collected data to derive insights, identify patterns, and generate actionable intelligence. The analytics engine supports both batch processing for historical analysis and real-time analytics for immediate insights.
-
-### Edge Computing
-Enables computation at the edge of the network to reduce latency and bandwidth usage for time-sensitive applications. Edge nodes can process data locally and synchronize with the cloud platform as needed.
-
-### Digital Twin
-Creates virtual representations of physical devices to simulate, analyze, and optimize device performance and behavior. Digital twins enable advanced monitoring, predictive maintenance, and scenario testing without affecting the physical devices.
-
 ## High-level System Architecture Diagram
 
 ```mermaid
 flowchart TD
-    IOT[IoT Devices] --> EDGE[Edge Computing]
-    EDGE --> GATEWAY[IoT Device Gateway]
-    GATEWAY --> INGEST[Data Ingestion & Stream Processing]
-    INGEST <--> STORAGE[Data Storage]
-    STORAGE <--> ANALYTICS[Analytics Engine]
-    ANALYTICS <--> TWIN[Digital Twin]
-    TWIN <--> API[API Gateway]
-    API <--> APPS[External Applications]
-    APPS --> INGEST
+    APPS[Applications] --> API[API Gateway]
+    API --> TWIN[Digital Twin]
+    ANALYTICS <--> STORAGE[Data Storage]
+    STORAGE <--> INGEST[Data Ingestion & Stream Processing]
+    INGEST --> GATEWAY[IoT Device Gateway]
+    TWIN <--> ANALYTICS[Analytics Engine]
+    GATEWAY --> EDGE[Edge Devices]
+    TWIN <--> GATEWAY
+    API --> ANALYTICS
+    API --> STORAGE
+    APPS <--> INGEST
 ```
+
+## Main Components
+
+| Component                          | Description                                                                                                                                                                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IoT Device Gateway                 | Handles communication with IoT devices using various protocols, ensuring secure and reliable connections. Responsible for protocol translation, device authentication, and message routing.       |
+| API Gateway                        | Provides a unified entry point for all client applications, handling authentication, rate limiting, and request routing. Manages access control and serves as the interface for external systems. |
+| Data Ingestion & Stream Processing | Manages the collection, transformation, and real-time processing of data streams from connected devices. It supports high-volume data flows for immediate analysis and action.                    |
+| Data Storage                       | Implements a scalable and reliable storage solution for both time-series data and structured device information. Optimized for various query patterns and retention policies.                     |
+| Analytics Engine                   | Processes collected data to derive insights, identify patterns, and generate actionable intelligence. Supports both batch processing for historical analysis and real-time analytics.             |
+| Edge Computing                     | Enables computation at the edge of the network to reduce latency and bandwidth usage for time-sensitive applications, processing data locally and synchronizing with the cloud.                   |
+| Digital Twin                       | Creates virtual representations of physical devices to simulate, analyze, and optimize device performance and behavior, enabling advanced monitoring and predictive maintenance.                  |
 
 ## Technology Stack
 
