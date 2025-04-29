@@ -1,0 +1,39 @@
+{
+  "name": "STAIRS Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "USERNAME": "dev"
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/home/dev/workspace/STAIRS,type=bind"
+  ],
+  "workspaceFolder": "/home/dev/workspace/STAIRS",
+  "remoteUser": "dev",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "terminal.integrated.cwd": "/home/dev/workspace/STAIRS"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "jebbs.plantuml",
+        "ms-python.python",
+        "ms-python.debugpy",
+        "bradlc.vscode-tailwindcss",
+        "SuhelMakkad.shadcn-ui",
+        "zxh404.vscode-proto3",
+        "redhat.vscode-yaml",
+        "mrmlnc.vscode-json5",
+        "zeshuaro.vscode-python-poetry"
+      ]
+    }
+  },
+  "forwardPorts": [],
+  "remoteEnv": {}
+}

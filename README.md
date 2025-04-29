@@ -1,21 +1,42 @@
-# Open Source Template
+# STAIRS
+
+**S**calable **T**echnology for **A**utomotive, **I**oT and **R**obotics **S**ystems
+
+> \- I have a complex network of IoT devices and vehicles that need cloud connectivity.
+>
+> \- Have you tried using STAIRS?
+
 
 ## Project Overview
 
-Open Source Template is a minimal starting point for new open-source projects. This template provides a recommended project structure, initial configuration files, and basic documentation to help you set up quickly and follow best practices.
+**STAIRS** is an open source cloud platform that leverages open source components to provide a comprehensive solution for automotive, IoT, and robotics systems. The platform is designed to be scalable, secure, and interoperable, supporting a wide range of devices and use cases from fixed installations to mobile/vehicle-based devices.
 
 ## Getting Started
 
 1. Clone the Repository
 
-```bash
-git clone https://github.com/OpenTier/open-source-template.git
-cd open-source-template
+```sh
+git clone https://github.com/OpenTier/STAIRS.git
+cd STAIRS
 ```
+
+2. Compose the platform
+
+```sh
+docker compose up
+```
+
+## Roadmap
+
+See our detailed [Roadmap](doc/roadmap.md) for planned features and development status.
+
+## Architecture
+
+See our [Architecture](doc/architecture.md) documentation for details on the platform components and system design.
 
 ## Contributing
 
-We welcome contributions to this template! See [Contribution guidelines](CONTRIBUTING.md) for guidelines on how to contribute.
+We welcome contributions to this project! See [Contribution guidelines](CONTRIBUTING.md) for guidelines on how to contribute.
 
 ## License
 
