@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package robot;
+
+import "vehicle_cloud_events.proto";
+
+message RobotPacket {
+  uint32 robot_id = 1;     // Target robot ID
+  
+  oneof payload {
+    RobotCommand command = 2;
+    RobotStatus status = 3;
+  }
+}
+
+message RobotCommand {
+  oneof command {
+    Control control = 1;
+    Kick kick = 2;
+    Leds leds = 3;
+    Beep beep = 4;
+  }
+}
+
+message Control {
+  float dx = 1;     // X velocity (m/s)
+  float dy = 2;     // Y velocity (m/s)
+  float dturn = 3;  // Rotation speed (rad/s)
+}
+
+message Kick {
+  float power = 1;  // 0.0-1.0
+}
+
+message Leds {
+  uint32 red = 1;    // 0-255
+  uint32 green = 2;  // 0-255
+  uint32 blue = 3;   // 0-255
+}
+
+message Beep {
+  uint32 frequency = 1;  // Hz
+  uint32 duration = 2;   // ms
+}
+
+message RobotStatus {
+  float timestamp = 1;                   // Robot's internal time
+  vehicle_cloud_events.BatteryEvent battery_info = 2; 
+  bool is_running = 3;                   // Heartbeat active status
+}

@@ -1,0 +1,261 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "battery-status",
+      "folder": "Vehicles",
+      "interval": "10s",
+      "rules": [
+        {
+          "uid": "feqfdcjr3ivpce",
+          "title": "Critical Battery Danger",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 30, "to": 0 },
+              "datasourceUid": "influxdb-3",
+              "model": {
+                "datasource": { "type": "influxdb", "uid": "influxdb-3" },
+                "instant": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "query": "from(bucket: \"telemetry\")\n  |\u003e range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"battery\")\n  |\u003e filter(fn: (r) =\u003e r[\"_field\"] == \"battery_level\")\n  |\u003e filter(fn: (r) =\u003e exists r._value)\n  |\u003e group(columns: [\"vehicle_id\"])\n  |\u003e last()\n  |\u003e pivot(rowKey: [\"_time\"], columnKey: [\"vehicle_id\"], valueColumn: \"_value\")",
+                "range": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce",
+                "settings": {
+                  "mode": "dropNN"
+                }
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "$B <= 10",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "math"
+              }
+            }
+          ],
+          "dashboardUid": "571da5da-7693-4e53-8d66-aca96c55b74d",
+          "panelId": 3,
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "10s",
+          "annotations": {
+            "__dashboardUid__": "571da5da-7693-4e53-8d66-aca96c55b74d",
+            "__panelId__": "3"
+          },
+          "isPaused": false,
+          "notification_settings": { "receiver": "grafana-default-email" }
+        },
+        {
+          "uid": "speed-monitor-danger",
+          "title": "Vehicle Speed DANGER - All Vehicles",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 30, "to": 0 },
+              "datasourceUid": "influxdb-3",
+              "model": {
+                "datasource": { "type": "influxdb", "uid": "influxdb-3" },
+                "instant": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "query": "from(bucket: \"telemetry\")\n  |\u003e range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"speed\")\n  |\u003e filter(fn: (r) =\u003e r[\"_field\"] == \"speed\")\n  |\u003e filter(fn: (r) =\u003e exists r._value)\n  |\u003e group(columns: [\"vehicle_id\"])\n  |\u003e last()\n  |\u003e pivot(rowKey: [\"_time\"], columnKey: [\"vehicle_id\"], valueColumn: \"_value\")",
+                "range": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce",
+                "settings": {
+                  "mode": "dropNN"
+                }
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "$B > 100",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "math"
+              }
+            }
+          ],
+          "dashboardUid": "571da5da-7693-4e53-8d66-aca96c55b74d",
+          "panelId": 5,
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "15s",
+          "annotations": {
+            "__dashboardUid__": "571da5da-7693-4e53-8d66-aca96c55b74d",
+            "__panelId__": "5"
+          },
+          "isPaused": false,
+          "notification_settings": { "receiver": "grafana-default-email" }
+        },
+        {
+          "uid": "battery-temperature-warning",
+          "title": "Engine Temperature Warning - All Vehicles",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 30, "to": 0 },
+              "datasourceUid": "influxdb-3",
+              "model": {
+                "datasource": { "type": "influxdb", "uid": "influxdb-3" },
+                "instant": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "query": "from(bucket: \"telemetry\")\n  |\u003e range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"battery\")\n  |\u003e filter(fn: (r) =\u003e r[\"_field\"] == \"temperature\")\n  |\u003e filter(fn: (r) =\u003e exists r._value)\n  |\u003e group(columns: [\"vehicle_id\"])\n  |\u003e last()\n  |\u003e pivot(rowKey: [\"_time\"], columnKey: [\"vehicle_id\"], valueColumn: \"_value\")",
+                "range": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce",
+                "settings": {
+                  "mode": "dropNN"
+                }
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "$B > 130",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "math"
+              }
+            }
+          ],
+          "dashboardUid": "571da5da-7693-4e53-8d66-aca96c55b74d",
+          "panelId": 6,
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "30s",
+          "annotations": {
+            "__dashboardUid__": "571da5da-7693-4e53-8d66-aca96c55b74d",
+            "__panelId__": "6"
+          },
+          "isPaused": false,
+          "notification_settings": { "receiver": "grafana-default-email" }
+        },
+        {
+          "uid": "battery-temperature-danger",
+          "title": "Engine Temperature DANGER - All Vehicles",
+          "condition": "C",
+          "data": [
+            {
+              "refId": "A",
+              "relativeTimeRange": { "from": 30, "to": 0 },
+              "datasourceUid": "influxdb-3",
+              "model": {
+                "datasource": { "type": "influxdb", "uid": "influxdb-3" },
+                "instant": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "query": "from(bucket: \"telemetry\")\n  |\u003e range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |\u003e filter(fn: (r) =\u003e r[\"_measurement\"] == \"battery\")\n  |\u003e filter(fn: (r) =\u003e r[\"_field\"] == \"temperature\")\n  |\u003e filter(fn: (r) =\u003e exists r._value)\n  |\u003e group(columns: [\"vehicle_id\"])\n  |\u003e last()\n  |\u003e pivot(rowKey: [\"_time\"], columnKey: [\"vehicle_id\"], valueColumn: \"_value\")",
+                "range": true,
+                "refId": "A"
+              }
+            },
+            {
+              "refId": "B",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "A",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "reducer": "last",
+                "refId": "B",
+                "type": "reduce",
+                "settings": {
+                  "mode": "dropNN"
+                }
+              }
+            },
+            {
+              "refId": "C",
+              "relativeTimeRange": { "from": 0, "to": 0 },
+              "datasourceUid": "__expr__",
+              "model": {
+                "datasource": { "type": "__expr__", "uid": "__expr__" },
+                "expression": "$B > 150",
+                "intervalMs": 1000,
+                "maxDataPoints": 43200,
+                "refId": "C",
+                "type": "math"
+              }
+            }
+          ],
+          "dashboardUid": "571da5da-7693-4e53-8d66-aca96c55b74d",
+          "panelId": 7,
+          "noDataState": "NoData",
+          "execErrState": "Error",
+          "for": "15s",
+          "annotations": {
+            "__dashboardUid__": "571da5da-7693-4e53-8d66-aca96c55b74d",
+            "__panelId__": "7"
+          },
+          "isPaused": false,
+          "notification_settings": { "receiver": "grafana-default-email" }
+        }
+      ]
+    }
+  ]
+}

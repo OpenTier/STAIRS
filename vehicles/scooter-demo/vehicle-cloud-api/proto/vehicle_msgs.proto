@@ -1,0 +1,563 @@
+syntax = "proto3";
+
+package vehicle_msgs;
+
+message Vehicle {
+  VehicleAcceleration Acceleration = 1;
+  VehicleAngularVelocity AngularVelocity = 2;
+  float AverageSpeed = 3;
+  VehicleBody Body = 4;
+  VehicleCabin Cabin = 5;
+  VehicleChassis Chassis = 6;
+  VehicleConnectivity Connectivity = 7;
+  uint32 CurbWeight = 8;
+  VehicleCurrentLocation CurrentLocation = 9;
+  uint32 CurrentOverallWeight = 10;
+  VehicleDiagnostics Diagnostics = 11;
+  VehicleExterior Exterior = 12;
+  bool IsBrokenDown = 13;
+  bool IsMoving = 14;
+  VehicleLowVoltageBattery LowVoltageBattery = 15;
+  string LowVoltageSystemState = 16;
+  VehiclePowertrain Powertrain = 17;
+  VehicleService Service = 18;
+  float Speed = 19;
+  string StartTime = 20;
+  VehicleTrailer Trailer = 21;
+  float TraveledDistance = 22;
+  float TraveledDistanceSinceStart = 23;
+  float TripDuration = 24;
+  float TripMeterReading = 25;
+  uint32 TurningDiameter = 26;
+  VehicleVehicleIdentification VehicleIdentification = 27;
+}
+
+message VehicleAcceleration {
+  float Lateral = 1;
+  float Longitudinal = 2;
+  float Vertical = 3;
+}
+
+message VehicleAngularVelocity {
+  float Pitch = 1;
+  float Roll = 2;
+  float Yaw = 3;
+}
+
+message VehicleBody {
+  VehicleBodyHorn Horn = 1;
+  VehicleBodyLights Lights = 2;
+  VehicleBodyTrunk Trunk = 3;
+}
+
+message VehicleBodyHorn {
+  bool IsActive = 1;
+}
+
+message VehicleBodyLights {
+  VehicleBodyLightsBeam Beam = 1;
+  VehicleBodyLightsBrake Brake = 2;
+  VehicleBodyLightsDirectionIndicator DirectionIndicator = 3;
+  VehicleBodyLightsHazard Hazard = 4;
+  bool IsHighBeamSwitchOn = 5;
+  VehicleBodyLightsLicensePlate LicensePlate = 6;
+  string LightSwitch = 7;
+  VehicleBodyLightsParking Parking = 8;
+  VehicleBodyLightsRunning Running = 9;
+}
+
+message VehicleBodyLightsBeam {
+  VehicleBodyLightsBeamHigh High = 1;
+  VehicleBodyLightsBeamLow Low = 2;
+}
+
+message VehicleBodyLightsBeamHigh {
+  bool IsDefect = 1;
+  bool IsOn = 2;
+}
+
+message VehicleBodyLightsBeamLow {
+  bool IsDefect = 1;
+  bool IsOn = 2;
+}
+
+message VehicleBodyLightsBrake {
+  string IsActive = 1;
+  bool IsDefect = 2;
+}
+
+message VehicleBodyLightsDirectionIndicator {
+  VehicleBodyLightsDirectionIndicatorLeft Left = 1;
+  VehicleBodyLightsDirectionIndicatorRight Right = 2;
+}
+
+message VehicleBodyLightsDirectionIndicatorLeft {
+  bool IsDefect = 1;
+  bool IsSignaling = 2;
+}
+
+message VehicleBodyLightsDirectionIndicatorRight {
+  bool IsDefect = 1;
+  bool IsSignaling = 2;
+}
+
+message VehicleBodyLightsHazard {
+  bool IsDefect = 1;
+  bool IsSignaling = 2;
+}
+
+message VehicleBodyLightsLicensePlate {
+  bool IsDefect = 1;
+  bool IsOn = 2;
+}
+
+message VehicleBodyLightsParking {
+  bool IsDefect = 1;
+  bool IsOn = 2;
+}
+
+message VehicleBodyLightsRunning {
+  bool IsDefect = 1;
+  bool IsOn = 2;
+}
+
+message VehicleBodyTrunk {
+  VehicleBodyTrunkRear Rear = 1;
+}
+
+message VehicleBodyTrunkRear {
+  bool IsLightOn = 1;
+  bool IsLocked = 2;
+  bool IsOpen = 3;
+}
+
+message VehicleCabin {
+  VehicleCabinInfotainment Infotainment = 1;
+}
+
+message VehicleCabinInfotainment {
+  VehicleCabinInfotainmentHMI HMI = 1;
+  VehicleCabinInfotainmentMedia Media = 2;
+  VehicleCabinInfotainmentNavigation Navigation = 3;
+  VehicleCabinInfotainmentSmartphoneProjection SmartphoneProjection = 4;
+  VehicleCabinInfotainmentSmartphoneScreenMirroring SmartphoneScreenMirroring = 5;
+}
+
+message VehicleCabinInfotainmentHMI {
+  float Brightness = 1;
+  string CurrentLanguage = 2;
+  string DateFormat = 3;
+  string DayNightMode = 4;
+  uint32 DisplayOffDuration = 5;
+  string DistanceUnit = 6;
+  string EVEconomyUnits = 7;
+  string EVEnergyUnits = 8;
+  string FontSize = 9;
+  string FuelEconomyUnits = 10;
+  string FuelVolumeUnit = 11;
+  bool IsScreenAlwaysOn = 12;
+  string LastActionTime = 13;
+  string SpeedUnit = 14;
+  string TemperatureUnit = 15;
+  string TimeFormat = 16;
+  string TirePressureUnit = 17;
+}
+
+message VehicleCabinInfotainmentMedia {
+  string Action = 1;
+  string DeclinedURI = 2;
+  VehicleCabinInfotainmentMediaPlayed Played = 3;
+  string SelectedURI = 4;
+  uint32 Volume = 5;
+}
+
+message VehicleCabinInfotainmentMediaPlayed {
+  string Album = 1;
+  string Artist = 2;
+  float PlaybackRate = 3;
+  string Source = 4;
+  string Track = 5;
+  string URI = 6;
+}
+
+message VehicleCabinInfotainmentNavigation {
+  VehicleCabinInfotainmentNavigationDestinationSet DestinationSet = 1;
+  string GuidanceVoice = 2;
+  VehicleCabinInfotainmentNavigationMap Map = 3;
+  string Mute = 4;
+  uint32 Volume = 5;
+}
+
+message VehicleCabinInfotainmentNavigationDestinationSet {
+  double Latitude = 1;
+  double Longitude = 2;
+}
+
+message VehicleCabinInfotainmentNavigationMap {
+  bool IsAutoScaleModeUsed = 1;
+}
+
+message VehicleCabinInfotainmentSmartphoneProjection {
+  string Active = 1;
+  string Source = 2;
+  repeated string SupportedMode = 3;
+}
+
+message VehicleCabinInfotainmentSmartphoneScreenMirroring {
+  string Active = 1;
+  string Source = 2;
+}
+
+message VehicleChassis {
+  VehicleChassisAccelerator Accelerator = 1;
+  VehicleChassisAxle Axle = 2;
+  VehicleChassisBrake Brake = 3;
+  VehicleChassisSteeringWheel SteeringWheel = 4;
+  uint32 Wheelbase = 5;
+}
+
+message VehicleChassisAccelerator {
+  uint32 PedalPosition = 1;
+}
+
+message VehicleChassisAxle {
+  VehicleChassisAxleRow1 Row1 = 1;
+  VehicleChassisAxleRow2 Row2 = 2;
+}
+
+message VehicleChassisAxleRow1 {
+  uint32 AxleWidth = 1;
+  float SteeringAngle = 2;
+  uint32 TireAspectRatio = 3;
+  float TireDiameter = 4;
+  uint32 TireWidth = 5;
+  uint32 TrackWidth = 6;
+  uint32 TreadWidth = 7;
+  VehicleChassisAxleRow1Wheel Wheel = 8;
+  float WheelDiameter = 9;
+  float WheelWidth = 10;
+}
+
+message VehicleChassisAxleRow1Wheel {
+  VehicleChassisAxleRow1WheelLeft Left = 1;
+}
+
+message VehicleChassisAxleRow1WheelLeft {
+  float AngularSpeed = 1;
+  VehicleChassisAxleRow1WheelLeftBrake Brake = 2;
+  float Speed = 3;
+  VehicleChassisAxleRow1WheelLeftTire Tire = 4;
+}
+
+message VehicleChassisAxleRow1WheelLeftBrake {
+  uint32 FluidLevel = 1;
+  bool IsBrakesWorn = 2;
+  bool IsFluidLevelLow = 3;
+  uint32 PadWear = 4;
+}
+
+message VehicleChassisAxleRow1WheelLeftTire {
+  bool IsPressureLow = 1;
+  uint32 Pressure = 2;
+  float Temperature = 3;
+}
+
+message VehicleChassisAxleRow2 {
+  uint32 AxleWidth = 1;
+  float SteeringAngle = 2;
+  uint32 TireAspectRatio = 3;
+  float TireDiameter = 4;
+  uint32 TireWidth = 5;
+  uint32 TrackWidth = 6;
+  uint32 TreadWidth = 7;
+  VehicleChassisAxleRow2Wheel Wheel = 8;
+  float WheelDiameter = 9;
+  float WheelWidth = 10;
+}
+
+message VehicleChassisAxleRow2Wheel {
+  VehicleChassisAxleRow2WheelLeft Left = 1;
+}
+
+message VehicleChassisAxleRow2WheelLeft {
+  float AngularSpeed = 1;
+  VehicleChassisAxleRow2WheelLeftBrake Brake = 2;
+  float Speed = 3;
+  VehicleChassisAxleRow2WheelLeftTire Tire = 4;
+}
+
+message VehicleChassisAxleRow2WheelLeftBrake {
+  uint32 FluidLevel = 1;
+  bool IsBrakesWorn = 2;
+  bool IsFluidLevelLow = 3;
+  uint32 PadWear = 4;
+}
+
+message VehicleChassisAxleRow2WheelLeftTire {
+  bool IsPressureLow = 1;
+  uint32 Pressure = 2;
+  float Temperature = 3;
+}
+
+message VehicleChassisBrake {
+  bool IsDriverEmergencyBrakingDetected = 1;
+  uint32 PedalPosition = 2;
+}
+
+message VehicleChassisSteeringWheel {
+  int32 Angle = 1;
+  uint32 Extension = 2;
+  int32 HeatingCooling = 3;
+  uint32 Tilt = 4;
+}
+
+message VehicleConnectivity {
+  bool IsConnectivityAvailable = 1;
+}
+
+message VehicleCurrentLocation {
+  double Altitude = 1;
+  VehicleCurrentLocationGNSSReceiver GNSSReceiver = 2;
+  double Heading = 3;
+  double HorizontalAccuracy = 4;
+  double Latitude = 5;
+  double Longitude = 6;
+  string Timestamp = 7;
+  double VerticalAccuracy = 8;
+}
+
+message VehicleCurrentLocationGNSSReceiver {
+  string FixType = 1;
+  VehicleCurrentLocationGNSSReceiverMountingPosition MountingPosition = 2;
+}
+
+message VehicleCurrentLocationGNSSReceiverMountingPosition {
+  int32 X = 1;
+  int32 Y = 2;
+  int32 Z = 3;
+}
+
+message VehicleDiagnostics {
+  uint32 DTCCount = 1;
+  repeated string DTCList = 2;
+}
+
+message VehicleExterior {
+  float AirTemperature = 1;
+  float Humidity = 2;
+  float LightIntensity = 3;
+}
+
+message VehicleLowVoltageBattery {
+  float CurrentCurrent = 1;
+  float CurrentVoltage = 2;
+  uint32 NominalCapacity = 3;
+  uint32 NominalVoltage = 4;
+}
+
+message VehiclePowertrain {
+  float AccumulatedBrakingEnergy = 1;
+  VehiclePowertrainElectricMotor ElectricMotor = 2;
+  VehiclePowertrainTractionBattery TractionBattery = 3;
+  VehiclePowertrainTransmission Transmission = 4;
+}
+
+message VehiclePowertrainElectricMotor {
+  int32 CoolantTemperature = 1;
+  string EngineCode = 2;
+  VehiclePowertrainElectricMotorEngineCoolant EngineCoolant = 3;
+  uint32 MaxPower = 4;
+  uint32 MaxRegenPower = 5;
+  uint32 MaxRegenTorque = 6;
+  uint32 MaxTorque = 7;
+  int32 Power = 8;
+  int32 Speed = 9;
+  int32 Temperature = 10;
+  float TimeInUse = 11;
+  int32 Torque = 12;
+}
+
+message VehiclePowertrainElectricMotorEngineCoolant {
+  float Capacity = 1;
+  string Level = 2;
+  int32 LifeRemaining = 3;
+  float Temperature = 4;
+}
+
+message VehiclePowertrainTractionBattery {
+  float AccumulatedChargedEnergy = 1;
+  float AccumulatedChargedThroughput = 2;
+  float AccumulatedConsumedEnergy = 3;
+  float AccumulatedConsumedThroughput = 4;
+  VehiclePowertrainTractionBatteryBatteryConditioning BatteryConditioning = 5;
+  VehiclePowertrainTractionBatteryCellVoltage CellVoltage = 6;
+  VehiclePowertrainTractionBatteryCharging Charging = 7;
+  float CurrentCurrent = 8;
+  float CurrentPower = 9;
+  float CurrentVoltage = 10;
+  VehiclePowertrainTractionBatteryDCDC DCDC = 11;
+  repeated string ErrorCodes = 12;
+  uint32 GrossCapacity = 13;
+  string Id = 14;
+  bool IsGroundConnected = 15;
+  bool IsPowerConnected = 16;
+  uint32 MaxVoltage = 17;
+  uint32 NetCapacity = 18;
+  uint32 NominalVoltage = 19;
+  float PowerLoss = 20;
+  string ProductionDate = 21;
+  uint32 Range = 22;
+  VehiclePowertrainTractionBatteryStateOfCharge StateOfCharge = 23;
+  float StateOfHealth = 24;
+  VehiclePowertrainTractionBatteryTemperature Temperature = 25;
+  uint32 TimeRemaining = 26;
+}
+
+message VehiclePowertrainTractionBatteryBatteryConditioning {
+  bool IsActive = 1;
+  bool IsOngoing = 2;
+  string RequestedMode = 3;
+  string StartTime = 4;
+  float TargetTemperature = 5;
+  string TargetTime = 6;
+}
+
+message VehiclePowertrainTractionBatteryCellVoltage {
+  repeated float CellVoltages = 1;
+  uint32 IdMax = 2;
+  uint32 IdMin = 3;
+  float Max = 4;
+  float Min = 5;
+}
+
+message VehiclePowertrainTractionBatteryCharging {
+  float AveragePower = 1;
+  VehiclePowertrainTractionBatteryChargingChargeCurrent ChargeCurrent = 2;
+  uint32 ChargeLimit = 3;
+  repeated string ChargePlugType = 4;
+  string ChargePortFlap = 5;
+  repeated string ChargePortPosition = 6;
+  repeated string ChargePortType = 7;
+  float ChargeRate = 8;
+  VehiclePowertrainTractionBatteryChargingChargeVoltage ChargeVoltage = 9;
+  string EvseId = 10;
+  bool IsChargePortFlapOpen = 11;
+  bool IsCharging = 12;
+  bool IsChargingCableConnected = 13;
+  bool IsChargingCableLocked = 14;
+  bool IsDischarging = 15;
+  VehiclePowertrainTractionBatteryChargingLocation Location = 16;
+  float MaxPower = 17;
+  VehiclePowertrainTractionBatteryChargingMaximumChargingCurrent MaximumChargingCurrent = 18;
+  string Mode = 19;
+  float PowerLoss = 20;
+  string StartStopCharging = 21;
+  float Temperature = 22;
+  uint32 TimeToComplete = 23;
+  VehiclePowertrainTractionBatteryChargingTimer Timer = 24;
+}
+
+message VehiclePowertrainTractionBatteryChargingChargeCurrent {
+  float DC = 1;
+  float Phase1 = 2;
+  float Phase2 = 3;
+  float Phase3 = 4;
+}
+
+message VehiclePowertrainTractionBatteryChargingChargeVoltage {
+  float DC = 1;
+  float Phase1 = 2;
+  float Phase2 = 3;
+  float Phase3 = 4;
+}
+
+message VehiclePowertrainTractionBatteryChargingLocation {
+  double Altitude = 1;
+  double Latitude = 2;
+  double Longitude = 3;
+}
+
+message VehiclePowertrainTractionBatteryChargingMaximumChargingCurrent {
+  float DC = 1;
+  float Phase1 = 2;
+  float Phase2 = 3;
+  float Phase3 = 4;
+}
+
+message VehiclePowertrainTractionBatteryChargingTimer {
+  string Mode = 1;
+  string Time = 2;
+}
+
+message VehiclePowertrainTractionBatteryDCDC {
+  float PowerLoss = 1;
+  float Temperature = 2;
+}
+
+message VehiclePowertrainTractionBatteryStateOfCharge {
+  float Current = 1;
+  float CurrentEnergy = 2;
+  float Displayed = 3;
+}
+
+message VehiclePowertrainTractionBatteryTemperature {
+  float Average = 1;
+  repeated float CellTemperature = 2;
+  float Max = 3;
+  float Min = 4;
+}
+
+message VehiclePowertrainTransmission {
+  float ClutchEngagement = 1;
+  uint32 ClutchWear = 2;
+  int32 CurrentGear = 3;
+  float DiffLockFrontEngagement = 4;
+  float DiffLockRearEngagement = 5;
+  string DriveType = 6;
+  string GearChangeMode = 7;
+  int32 GearCount = 8;
+  bool IsElectricalPowertrainEngaged = 9;
+  bool IsLowRangeEngaged = 10;
+  bool IsParkLockEngaged = 11;
+  string PerformanceMode = 12;
+  int32 SelectedGear = 13;
+  int32 Temperature = 14;
+  float TorqueDistribution = 15;
+  float TravelledDistance = 16;
+  string Type = 17;
+}
+
+message VehicleService {
+  float DistanceToService = 1;
+  bool IsServiceDue = 2;
+  int32 TimeToService = 3;
+}
+
+message VehicleTrailer {
+  bool IsConnected = 1;
+}
+
+message VehicleVehicleIdentification {
+  string AcrissCode = 1;
+  string BodyType = 2;
+  string Brand = 3;
+  string DateVehicleFirstRegistered = 4;
+  string KnownVehicleDamages = 5;
+  string LicensePlate = 6;
+  string MeetsEmissionStandard = 7;
+  string Model = 8;
+  repeated string OptionalExtras = 9;
+  string ProductionDate = 10;
+  string PurchaseDate = 11;
+  string VIN = 12;
+  string VehicleConfiguration = 13;
+  string VehicleExteriorColor = 14;
+  string VehicleInteriorColor = 15;
+  string VehicleInteriorType = 16;
+  string VehicleModelDate = 17;
+  uint32 VehicleSeatingCapacity = 18;
+  string VehicleSpecialUsage = 19;
+  string WMI = 20;
+  uint32 Year = 21;
+}
+

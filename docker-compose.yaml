@@ -1,1 +1,229 @@
+# YAML Anchors for common environment variables
+x-influxdb-env: &influxdb-env
+  INFLUXDB_HOST: "http://172.20.0.20:8086"
+  INFLUXDB_TOKEN: "my-secret-token"
+  INFLUXDB_BUCKET: "telemetry"
+  INFLUXDB_ORG: "OpenTier"
 
+x-zenoh-topics: &zenoh-topics
+  SPEED_TOPIC: "cloud/telemetry/speed"
+  EXTERIOR_TOPIC: "cloud/telemetry/exterior"
+  LOCATION_TOPIC: "cloud/telemetry/location"
+  TIRES_TOPIC: "cloud/telemetry/tires"
+  SYSTEM_STATE_TOPIC: "cloud/telemetry/system_state"
+  TRIP_DATA_TOPIC: "cloud/telemetry/trip_data"
+  BATTERY_EVENT_TOPIC: "cloud/telemetry/battery_event"
+
+x-mongodb-uri: &mongodb-uri
+  MONGODB_URI: "mongodb://admin:secretpassword@172.20.0.40:27017/"
+
+x-enable-tracing: &enable-tracing
+  ENABLE_TRACING: "true"
+  OTEL_LOG_CORRELATION_ENABLED: "true"
+
+x-rust-log: &rust-log
+  RUST_LOG: "info"
+
+x-postgres-env: &postgres-env
+  POSTGRES_USER: "admin"
+  POSTGRES_PASSWORD: "secretpassword"
+  POSTGRES_DB: "delivery"
+
+x-postgresql-conn-env: &postgresql-conn-env
+  POSTGRESQL_HOST: "172.20.0.30"
+  POSTGRESQL_PORT: "5432"
+  POSTGRESQL_USER: "admin"
+  POSTGRESQL_PASSWORD: "secretpassword"
+  POSTGRESQL_DATABASE: "delivery"
+
+# Additional environment anchors extracted from service definitions
+
+x-delivery-backend-env: &delivery-backend-env
+  <<: [ *influxdb-env, *postgresql-conn-env, *enable-tracing ]
+  BACKEND_PORT: "3001"
+  BACKEND_HOSTNAME: "172.20.0.11"
+  PRODUCTION: "true"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+  SKIP_SIMULATED_VEHICLES: "true" # if Carla is not working, do not inform vehicle gateway about simulated vehicles created => set to "true"
+
+x-vehicle-gateway-env: &vehicle-gateway-env
+  <<: [ *influxdb-env, *rust-log, *mongodb-uri, *zenoh-topics ]
+  SIM_SERVICE_ENDPOINT: "http://172.20.0.14:8006"
+  SKIP_LOCATION_WRITING: "true" # whether or not to skip writing the location of the vehicle to InfluxDB
+  # Set to "true" to rely on write-dummy-data producing locations on a route in Riyadh instead of random path
+
+x-cloud-router-env: &cloud-router-env
+  <<: *rust-log
+
+x-influxdb-init-env: &influxdb-init-env
+  DOCKER_INFLUXDB_INIT_MODE: setup
+  DOCKER_INFLUXDB_INIT_USERNAME: admin
+  DOCKER_INFLUXDB_INIT_PASSWORD: secretpassword
+  DOCKER_INFLUXDB_INIT_ORG: OpenTier
+  DOCKER_INFLUXDB_INIT_BUCKET: telemetry
+  DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-secret-token
+
+x-mongodb-init-env: &mongodb-init-env
+  MONGO_INITDB_ROOT_USERNAME: admin
+  MONGO_INITDB_ROOT_PASSWORD: secretpassword
+
+x-scooter-env: &scooter-env
+  <<: *rust-log
+  DISPLAY: ":1"
+  SLINT_BACKEND: "Qt"
+
+services:
+  # Backend Services
+  delivery_backend:
+    build:
+      context: .
+      dockerfile: docker/backend/delivery_backend/Dockerfile
+    container_name: delivery_backend
+    environment: *delivery-backend-env
+    ports:
+      - "3001:3001"
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.11
+    depends_on:
+      # Vehicle GW for initial provisioning of vehicles
+      vehicle_gateway:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+
+  vehicle_gateway:
+    build:
+      context: .
+      dockerfile: docker/backend/vehicle_gateway/Dockerfile
+    container_name: vehicle_gateway
+    ports:
+      - "8005:8005"
+    environment: *vehicle-gateway-env
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.12
+    depends_on:
+      cloud_router:
+        condition: service_started
+      influxdb:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8005/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  cloud_router:
+    build:
+      context: .
+      dockerfile: docker/backend/cloud_router/Dockerfile
+    container_name: cloud_router
+    environment: *cloud-router-env
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.13
+      vehicle_network:
+        ipv4_address: 172.21.0.13
+    ports:
+      - "8000:8000" # Router REST API
+      - "7447:7447" # Zenoh
+
+  # Supporting Services: DBs
+  postgres:
+    image: postgres:17
+    container_name: postgresqldb
+    restart: unless-stopped
+    shm_size: 128mb
+    environment: *postgres-env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.30
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d delivery" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+    environment: *influxdb-init-env
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    ports:
+      - "8086:8086" # to be able to access it directly outside the container
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.20
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail http://localhost:8086/health || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  mongodb:
+    image: mongo:8.0
+    container_name: mongodb
+    restart: unless-stopped
+    environment: *mongodb-init-env
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.40
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # Vehicle Services
+  scooter:
+    build:
+      context: ./vehicles/scooter-demo
+      dockerfile: docker/vehicle/Dockerfile
+    container_name: scooter
+    networks:
+      vehicle_network:
+        ipv4_address: 172.21.0.11
+    environment: *scooter-env
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    profiles:
+      - scooter
+
+volumes:
+  postgres_data:
+  influxdb_data:
+  influxdb_config:
+  mongodb_data:
+
+networks:
+  public_cloud_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+
+  private_cloud_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+  vehicle_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16

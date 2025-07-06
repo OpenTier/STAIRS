@@ -1,0 +1,6 @@
+[submodule "vehicles/scooter-demo"]
+	path = vehicles/scooter-demo
+	url = https://github.com/OpenTier/scooter-demo.git
+[submodule "api/vehicle-cloud-api"]
+	path = api/vehicle-cloud-api
+	url = https://github.com/OpenTier/vehicle-cloud-api.git

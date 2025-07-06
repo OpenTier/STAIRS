@@ -1,0 +1,135 @@
+services:
+  # Monitoring Services
+  # 1. Prometheus
+  prometheus:
+    image: prom/prometheus:v3.4.0
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+      - --enable-feature=native-histograms
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.89
+    ports:
+      - 9090:9090
+  # 2. Node exporter
+  #   - This service is used to monitor the host system metrics
+  #   - It collects metrics from the host system and exposes them to Prometheus
+  #   - It is not a part of the OpenTier platform but is included for monitoring purposes
+  node-exporter:
+    image: prom/node-exporter:v1.9.1
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - --path.procfs=/host/proc
+      - --path.rootfs=/rootfs
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.70
+    ports:
+      - 9100:9100
+
+  # 3. Grafana OSS for visualization
+  #   - This service is used to visualize the metrics collected by Prometheus
+  #   - It provides a web interface to create dashboards and graphs
+  #   - It is not a part of the OpenTier platform but is included for monitoring purposes
+  grafana:
+    image: grafana/grafana-oss:12.0.0-ubuntu
+    container_name: grafana
+    ports:
+      - 5000:3000
+    volumes:
+      - ./monitoring/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: secretpassword
+      DOCKER_INFLUXDB_INIT_ORG: OpenTier
+      DOCKER_INFLUXDB_INIT_BUCKET: telemetry
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-secret-token
+      GF_FEATURE_TOGGLES_ENABLE: accessControlOnCall,traceqlEditor
+      GF_INSTALL_PLUGINS: grafana-lokiexplore-app
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.24
+      public_cloud_network:
+        ipv4_address: 172.22.0.24
+    depends_on:
+      - influxdb
+      - prometheus
+
+  # 4. OpenTelemetry Collector
+  #   - This service is used to collect metrics and logs from the OpenTier platform
+  otel-collector:
+    image: otel/opentelemetry-collector:0.128.0
+    volumes:
+      - ./monitoring/otel-collector/config.yaml:/etc/otel-collector/config.yaml
+    command:
+      - '--config=/etc/otel-collector/config.yaml'
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.90
+    ports:
+      - "4317:4317" #grpc
+      - "4318:4318" #http
+    depends_on:
+      - loki
+
+  # 5. Loki for log aggregation
+  #   - This service is used to collect and aggregate logs from the OpenTier platform
+  loki:
+    image: grafana/loki:main
+    volumes:
+      - ./monitoring/loki/config.yaml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.91
+    ports:
+      - "3100:3100"
+
+  # 6. Tempo for traces storage
+  tempo:
+    image: grafana/tempo:2.8.0
+    ports:
+      - "3200:3200" # gRPC ingestion
+      - "3201:3201" # HTTP query API
+    command:
+      - "-config.file=/etc/tempo-local.yaml"
+    volumes:
+      - ./monitoring/tempo/config.yaml:/etc/tempo-local.yaml
+    networks:
+      private_cloud_network:
+        ipv4_address: 172.20.0.92
+
+volumes:
+  prometheus_data:
+  grafana_data:
+
+
+networks:
+  public_cloud_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+
+  private_cloud_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

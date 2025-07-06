@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package vehicle_cloud_events;
+
+message SpeedEvent {
+  string vehicle_id = 1;
+  float speed = 2;
+}
+
+message SystemStateEvent {
+  string vehicle_id = 1;
+  string system_state = 2;
+}
+
+message CurrentLocationEvent {
+  string vehicle_id = 1;
+  double altitude = 2;
+  double latitude = 3;
+  double longitude = 4;
+  string timestamp = 5;
+}
+
+message TirePressure {
+  bool is_pressure_low = 1;
+  uint32 pressure = 2;
+  float temperature = 3;
+}
+
+message TirePressureEvent {
+  string vehicle_id = 1;
+  TirePressure front_tire = 2;
+  TirePressure rear_tire = 3;
+}
+
+message ExteriorEvent {
+  string vehicle_id = 1;
+  float air_temperature = 2;
+  float humidity = 3;
+  float light_intensity = 4;
+}
+
+message TripDataEvent {
+  string vehicle_id = 1;
+  string start_time = 2;
+  float traveled_distance = 3;
+  float traveled_distance_since_start = 4;
+  float trip_duration = 5;
+  float trip_meter_reading = 6;
+  float average_speed = 7;
+}
+
+message BatteryEvent {
+  string vehicle_id = 1;
+  bool is_charging = 2;  // Derived from VehiclePowertrainTractionBatteryCharging.IsCharging
+  bool is_discharging = 3;  // Derived from VehiclePowertrainTractionBatteryCharging.IsDischarging
+  uint32 time_to_fully_charge = 4;  // Derived from VehiclePowertrainTractionBatteryCharging.TimeToComplete
+  uint32 estimated_range = 5;  // Derived from VehiclePowertrainTractionBattery.Range
+  float battery_level = 6;  // Derived from VehiclePowertrainTractionBatteryStateOfCharge.Displayed
+  float state_of_health = 7;  // Derived from VehiclePowertrainTractionBattery.StateOfHealth
+  float temperature = 8;  // Derived from VehiclePowertrainTractionBatteryTemperature.Average
+}
