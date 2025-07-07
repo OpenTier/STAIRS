@@ -103,24 +103,19 @@ def updateVehicleMaxThresholds():
 
 # Create a point to write
 def write_vehicle_data(vehicleId, temperature, charge, velocity, pressure, timestamp):
-    # engine: for now remove to be consistnet with vehicle
-    # engine = Point("engine").tag("vehicle_id", vehicleId)
-    # engine.field("temperature", temperature)
-    # engine.time(timestamp)
-
     # battery
-    battery = Point("battery").tag("vehicle_id", vehicleId)
+    battery = Point("battery").tag("device_id", vehicleId)
     battery.field("battery_level", charge)
     battery.field("temperature", temperature)
     battery.time(timestamp)
 
     # speed
-    speed = Point("speed").tag("vehicle_id", vehicleId)
+    speed = Point("speed").tag("device_id", vehicleId)
     speed.field("speed", velocity)
     speed.time(timestamp)
 
     # tires
-    tires = Point("tires").tag("vehicle_id", vehicleId)
+    tires = Point("tires").tag("device_id", vehicleId)
     tires.field("front_tire_pressure", pressure)
     tires.time(timestamp)
 

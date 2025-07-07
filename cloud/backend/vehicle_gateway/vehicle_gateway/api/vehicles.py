@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException
 from vehicle_gateway.twin.twin_service import TwinService
-from enum import Enum
 from pydantic import BaseModel
 import logging
 
@@ -14,35 +13,28 @@ twin_service = TwinService()
 logger = logging.getLogger(__name__)
 
 
-class VehicleType(str, Enum):
-    REAL = "real"
-    SIMULATED = "simulated"
-
-
 class VehicleProvisionRequest(BaseModel):
-    type: VehicleType
     entity_id: int
     vin: str
 
 
-# Route to provision a new vehicle
-@router.post("/vehicle")
+# Route to provision a new device
+@router.post("/device")
 async def provision_vehicle(request: VehicleProvisionRequest):
     entity_id = request.entity_id
-    type = request.type
     vin = request.vin
 
     try:
-        simulated = type == VehicleType.SIMULATED
+        simulated = False
         # Call the provision_vehicle function from TwinService
         vehicle_id = await twin_service.provision_vehicle(entity_id, simulated, vin)
 
         # Handle the response and provide feedback
         if vehicle_id:
             return {
-                "message": "Vehicle provisioned successfully",
+                "message": "Device provisioned successfully",
                 "entity_id": entity_id,
-                "vehicle_id": vehicle_id,
+                "device_id": vehicle_id,
             }
         else:
             logger.info(
@@ -50,7 +42,7 @@ async def provision_vehicle(request: VehicleProvisionRequest):
                 f" already exists or provisioning failed."
             )
             raise HTTPException(
-                status_code=400, detail="Vehicle already exists or provisioning failed."
+                status_code=400, detail="Device already exists or provisioning failed."
             )
 
     except HTTPException as e:
@@ -64,48 +56,47 @@ async def provision_vehicle(request: VehicleProvisionRequest):
         )
         raise HTTPException(
             status_code=500,
-            detail="An unexpected error occurred while provisioning the vehicle.",
+            detail="An unexpected error occurred while provisioning the device.",
         )
 
 
-@router.post("/vehicle/{entity_id}/activate")
+@router.post("/device/{entity_id}/activate")
 async def reprovision_vehicle(entity_id: str):
-    return {"vehicle_id": entity_id, "status": "activated"}
+    return {"device_id": entity_id, "status": "activated"}
 
 
-@router.post("/vehicle/{entity_id}/deactivate")
+@router.post("/device/{entity_id}/deactivate")
 async def deprovision_vehicle(entity_id: str):
-    return {"vehicle_id": entity_id, "status": "deactivated"}
+    return {"device_id": entity_id, "status": "deactivated"}
 
 
-# Routes to activate / deactivate a vehicle
-@router.get("/vehicles/")
+# Routes to activate / deactivate a device
+@router.get("/device/")
 async def list_vehicles():
     vehicles = await twin_service.list_vehicles()
-    return {"status": "Vehicle added", "vehicles": vehicles}
+    return {"status": "Device added", "devices": vehicles}
 
 
-# Route to lock the vehicle
-@router.post("/vehicle/{entity_id}/lock")
+# Route to lock the device
+@router.post("/device/{entity_id}/lock")
 async def lock_vehicle(entity_id: int):
     result = await twin_service.lock_unlock_vehicle(entity_id, True)
     if result:
-        return {"status": "Vehicle locked successfully", "entity_id": entity_id}
-    raise HTTPException(status_code=500, detail="Failed to lock vehicle")
+        return {"status": "Device locked successfully", "entity_id": entity_id}
+    raise HTTPException(status_code=500, detail="Failed to lock device")
 
 
-# Route to unlock the vehicle
-@router.post("/vehicle/{entity_id}/unlock")
+# Route to unlock the device
+@router.post("/device/{entity_id}/unlock")
 async def unlock_vehicle(entity_id: int):
-    # return {"status": "Vehicle unlocked successfully", "vehicle_id": vehicle_id}
     result = await twin_service.lock_unlock_vehicle(entity_id, False)
     if result:
-        return {"status": "Vehicle unlocked successfully", "entity_id": entity_id}
-    raise HTTPException(status_code=500, detail="Failed to unlock vehicle")
+        return {"status": "Device unlocked successfully", "entity_id": entity_id}
+    raise HTTPException(status_code=500, detail="Failed to unlock device")
 
 
 # Route to turn the horn on/off
-@router.post("/vehicle/{entity_id}/horn")
+@router.post("/device/{entity_id}/horn")
 async def horn_control(entity_id: int, on: bool):
     result = await twin_service.horn_turn_on_off(entity_id, on)
     if result:
@@ -114,7 +105,7 @@ async def horn_control(entity_id: int, on: bool):
 
 
 # Route to turn the lights on/off
-@router.post("/vehicle/{entity_id}/lights")
+@router.post("/device/{entity_id}/lights")
 async def lights_control(entity_id: int, on: bool):
     result = await twin_service.lights_turn_on_off(entity_id, on)
     if result:

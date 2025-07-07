@@ -553,25 +553,21 @@ point = (
 
 
 def write_vehicle_data(vehicleId):
-    # engine: for now remove to be consistnet with vehicle
-    # engine = Point("engine").tag("vehicle_id", vehicleId)
-    # engine.field("temperature", random.uniform(100.00, 150.00))
-
     # battery
-    battery = Point("battery").tag("vehicle_id", vehicleId)
+    battery = Point("battery").tag("device_id", vehicleId)
     battery.field("battery_level", random.uniform(0.00, 100.00))
     battery.field("temperature", random.uniform(100.00, 150.00))
 
     # speed
-    speed = Point("speed").tag("vehicle_id", vehicleId)
+    speed = Point("speed").tag("device_id", vehicleId)
     speed.field("speed", random.uniform(60.00, 100.00))
 
     # tires
-    tires = Point("tires").tag("vehicle_id", vehicleId)
+    tires = Point("tires").tag("device_id", vehicleId)
     tires.field("front_tire_pressure", int(random.uniform(10, 40)))
 
     # lock_state
-    lock_state = Point("lock_state").tag("vehicle_id", vehicleId)
+    lock_state = Point("lock_state").tag("device_id", vehicleId)
     lock_state.field("system_state", "LOCK")  # "LOCK" or "ON"
 
     # Write data to InfluxDB
@@ -595,12 +591,12 @@ def write_map_data(vehicleId):
         # print(f"Vehicle {vehicleId} at route index {route_index} with
         # coordinates: ({latitude}, {longitude})")
 
-        location = Point("location").tag("vehicle_id", vehicleId)
+        location = Point("location").tag("device_id", vehicleId)
         location.field("latitude", latitude)
         location.field("longitude", longitude)
     else:
         if city == "Bonn":
-            location = Point("location").tag("vehicle_id", vehicleId)
+            location = Point("location").tag("device_id", vehicleId)
             location.field("latitude", random.uniform(50.733, 50.734))
             location.field("longitude", random.uniform(7.101, 7.102))
         else:  # None

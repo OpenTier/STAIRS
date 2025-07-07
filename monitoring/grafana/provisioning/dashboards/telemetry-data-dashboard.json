@@ -141,7 +141,7 @@
             "type": "influxdb",
             "uid": "influxdb-3"
           },
-          "query": "      from(bucket: \"telemetry\")\r\n      |> range(start: -50s)\r\n      |> filter(fn: (r) => r._measurement == \"speed\")\r\n      |> filter(fn: (r) => r[\"vehicle_id\"] == \"1\")\r\n      |> aggregateWindow(every: 5s, fn: max)\r\n      |> filter(fn: (r) => exists r._value)\r\n      |> limit(n: 10)\r\n\r\n\r\n",
+          "query": "      from(bucket: \"telemetry\")\r\n      |> range(start: -50s)\r\n      |> filter(fn: (r) => r._measurement == \"speed\")\r\n      |> filter(fn: (r) => r[\"device_id\"] == \"1\")\r\n      |> aggregateWindow(every: 5s, fn: max)\r\n      |> filter(fn: (r) => exists r._value)\r\n      |> limit(n: 10)\r\n\r\n\r\n",
           "refId": "A"
         }
       ],

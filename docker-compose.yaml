@@ -27,18 +27,18 @@ x-rust-log: &rust-log
 x-postgres-env: &postgres-env
   POSTGRES_USER: "admin"
   POSTGRES_PASSWORD: "secretpassword"
-  POSTGRES_DB: "delivery"
+  POSTGRES_DB: "device_information"
 
 x-postgresql-conn-env: &postgresql-conn-env
   POSTGRESQL_HOST: "172.20.0.30"
   POSTGRESQL_PORT: "5432"
   POSTGRESQL_USER: "admin"
   POSTGRESQL_PASSWORD: "secretpassword"
-  POSTGRESQL_DATABASE: "delivery"
+  POSTGRESQL_DATABASE: "device_information"
 
 # Additional environment anchors extracted from service definitions
 
-x-delivery-backend-env: &delivery-backend-env
+x-stairs-api-env: &stairs-api-env
   <<: [ *influxdb-env, *postgresql-conn-env, *enable-tracing ]
   BACKEND_PORT: "3001"
   BACKEND_HOSTNAME: "172.20.0.11"
@@ -75,12 +75,12 @@ x-scooter-env: &scooter-env
 
 services:
   # Backend Services
-  delivery_backend:
+  stairs_api:
     build:
       context: .
-      dockerfile: docker/backend/delivery_backend/Dockerfile
-    container_name: delivery_backend
-    environment: *delivery-backend-env
+      dockerfile: docker/backend/stairs_api/Dockerfile
+    container_name: stairs_api
+    environment: *stairs-api-env
     ports:
       - "3001:3001"
     networks:
@@ -148,7 +148,7 @@ services:
       private_cloud_network:
         ipv4_address: 172.20.0.30
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d delivery" ]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d device_information" ]
       interval: 10s
       timeout: 10s
       retries: 5

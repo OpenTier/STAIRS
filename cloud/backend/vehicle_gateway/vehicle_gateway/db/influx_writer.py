@@ -19,7 +19,7 @@ class InfluxWriter:
     def write_battery_data(self, data, entity_id: int):
         point = (
             Point("battery")
-            .tag("vehicle_id", entity_id)  # TODO: Change to entity_id
+            .tag("device_id", entity_id)
             .field("battery_level", data.battery_level)
             .field("is_charging", (1 if data.is_charging else 0))
             .field("is_discharging", (1 if data.is_discharging else 0))
@@ -35,7 +35,7 @@ class InfluxWriter:
         if Configuration.SKIP_LOCATION_WRITING is False:
             point = (
                 Point("location")
-                .tag("vehicle_id", entity_id)  # TODO: Change to entity_id
+                .tag("device_id", entity_id)
                 .field("altitude", data.altitude)
                 .field("latitude", data.latitude)
                 .field("longitude", data.longitude)
@@ -45,20 +45,14 @@ class InfluxWriter:
             self._do_write(point)
 
     def write_speed_data(self, data, entity_id: int):
-        point = (
-            # TODO: Change to entity_id
-            Point("speed")
-            .tag("vehicle_id", entity_id)
-            .field("speed", data.speed)
-        )
+        point = Point("speed").tag("device_id", entity_id).field("speed", data.speed)
 
         self._do_write(point)
 
     def write_exterior_data(self, data, entity_id: int):
         point = (
             Point("exterior")
-            # TODO: Change to entity_id
-            .tag("vehicle_id", entity_id)
+            .tag("device_id", entity_id)
             .field("air_temperature", data.air_temperature)
             .field("humidity", data.humidity)
             .field("light_intensity", data.light_intensity)
@@ -69,8 +63,7 @@ class InfluxWriter:
     def write_trip_data(self, data, entity_id: int):
         point = (
             Point("trip")
-            # TODO: Change to entity_id
-            .tag("vehicle_id", entity_id)
+            .tag("device_id", entity_id)
             .field("start_time", data.start_time)
             .field("traveled_distance", data.traveled_distance)
             .field("traveled_distance_since_start", data.traveled_distance_since_start)
@@ -84,8 +77,8 @@ class InfluxWriter:
     def write_lock_state_data(self, data, entity_id: int):
         point = (
             Point("lock_state")
-            # TODO: Change to entity_id
-            .tag("vehicle_id", entity_id).field("system_state", data.system_state)
+            .tag("device_id", entity_id)
+            .field("system_state", data.system_state)
         )
 
         self._do_write(point)
@@ -93,9 +86,8 @@ class InfluxWriter:
     def write_tires_data(self, data, entity_id: int):
         point = (
             Point("tires")
-            # TODO: Change to entity_id
             # TODO: missing other data
-            .tag("vehicle_id", entity_id)
+            .tag("device_id", entity_id)
             .field("front_tire_pressure", data.front_tire.pressure)
             .field("rear_tire_pressure", data.rear_tire.pressure)
         )

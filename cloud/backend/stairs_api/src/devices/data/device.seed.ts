@@ -1,0 +1,66 @@
+import { DeviceStatus } from '../interfaces/device.interfaces';
+
+const seedDevices = [
+  {
+    deviceId: 'VEHICLE1VIN',
+    make: 'Velocitia',
+    model: 'Stratus EV-S',
+    name: 'Fleet Car #7',
+    color: 'blue',
+    year: 2025,
+    image: 'https://example.com/images/stratus-ev.png',
+    provisionStatus: DeviceStatus.ACTIVE,
+  },
+  {
+    deviceId: 'thermo-003958',
+    make: 'HeatSync',
+    model: 'T900-Pro',
+    name: 'Living Room Thermostat',
+    color: 'white',
+    year: 2023,
+    image: 'https://example.com/images/thermostat.png',
+    provisionStatus: DeviceStatus.ACTIVE,
+  },
+  {
+    deviceId: 'iaq-plant-00212',
+    make: 'AeroSense',
+    model: 'AQX-500',
+    name: 'Factory Zone A - Sensor',
+    color: 'gray',
+    year: 2022,
+    image: 'https://example.com/images/air-quality.png',
+    provisionStatus: DeviceStatus.ACTIVE,
+  },
+  {
+    deviceId: 'scooter-11235',
+    make: 'UrbanGo',
+    model: 'X2-EV',
+    name: 'Scooter #11235',
+    color: 'black',
+    year: 2024,
+    image: 'https://example.com/images/scooter-black.png',
+    provisionStatus: DeviceStatus.ACTIVE,
+  },
+  {
+    deviceId: 'lock-78421',
+    make: 'SecureHive',
+    model: 'Lockit-X',
+    name: 'Front Door Lock',
+    color: 'silver',
+    year: 2021,
+    image: 'https://example.com/images/doorlock.png',
+    provisionStatus: DeviceStatus.MAINTENANCE,
+  },
+  {
+    deviceId: 'wx-44321',
+    make: 'ClimaTrack',
+    model: 'CT-WX1000',
+    name: 'Rooftop Weather Station',
+    color: 'white',
+    year: 2023,
+    image: 'https://example.com/images/weatherstation.png',
+    provisionStatus: DeviceStatus.INACTIVE,
+  },
+];
+
+export default seedDevices;

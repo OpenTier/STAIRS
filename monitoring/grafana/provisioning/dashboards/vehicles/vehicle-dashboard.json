@@ -98,7 +98,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "vehicle_id = \"${vehicle_id}\"\n\nfrom(bucket: \"telemetry\")\n  |> range(start: -120s)\n  |> filter(fn: (r) =>\n    r[\"vehicle_id\"] == vehicle_id and\n    (\n      (r._measurement == \"speed\" and r._field == \"speed\") or\n      (r._measurement == \"battery\" and (r._field == \"battery_level\" or r._field == \"temperature\")) or\n      (r._measurement == \"tires\" and r._field == \"front_tire_pressure\")\n    )\n  )\n  |> aggregateWindow(every: 120s, fn: count, createEmpty: true)\n  |> fill(column: \"_value\", value: 0)\n  |> map(fn: (r) => ({\n    _time: r._time,\n    _value: if r._value > 0 then 1 else 0,\n    _field: \"connectivity\",\n    vehicle_id: r.vehicle_id\n  }))\n  |> yield(name: \"status\")\n",
+          "query": "device_id = \"${device_id}\"\n\nfrom(bucket: \"telemetry\")\n  |> range(start: -120s)\n  |> filter(fn: (r) =>\n    r[\"device_id\"] == device_id and\n    (\n      (r._measurement == \"speed\" and r._field == \"speed\") or\n      (r._measurement == \"battery\" and (r._field == \"battery_level\" or r._field == \"temperature\")) or\n      (r._measurement == \"tires\" and r._field == \"front_tire_pressure\")\n    )\n  )\n  |> aggregateWindow(every: 120s, fn: count, createEmpty: true)\n  |> fill(column: \"_value\", value: 0)\n  |> map(fn: (r) => ({\n    _time: r._time,\n    _value: if r._value > 0 then 1 else 0,\n    _field: \"connectivity\",\n    device_id: r.device_id\n  }))\n  |> yield(name: \"status\")\n",
           "refId": "A"
         }
       ],
@@ -174,7 +174,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"battery_level\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> last()",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"battery_level\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> last()",
           "refId": "A"
         }
       ],
@@ -291,7 +291,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"location\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> filter(fn: (r) => r[\"_field\"] == \"latitude\" or r[\"_field\"] == \"longitude\")\n  |> group(columns: [\"vehicle_id\", \"_field\"])\n  |> last()\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> group()",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"location\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> filter(fn: (r) => r[\"_field\"] == \"latitude\" or r[\"_field\"] == \"longitude\")\n  |> group(columns: [\"device_id\", \"_field\"])\n  |> last()\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> group()",
           "refId": "A"
         },
         {
@@ -300,11 +300,11 @@
             "uid": "influxdb-3"
           },
           "hide": true,
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"location\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> filter(fn: (r) => r[\"_field\"] == \"latitude\" or r[\"_field\"] == \"longitude\")\n  |> group(columns: [\"vehicle_id\", \"_field\"])\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> group()\n  |> sort(columns: [\"_time\"])",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"location\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> filter(fn: (r) => r[\"_field\"] == \"latitude\" or r[\"_field\"] == \"longitude\")\n  |> group(columns: [\"device_id\", \"_field\"])\n  |> pivot(rowKey:[\"_time\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> group()\n  |> sort(columns: [\"_time\"])",
           "refId": "B"
         }
       ],
-      "title": "Vehicle ${vehicle_id} Location Map",
+      "title": "Vehicle ${device_id} Location Map",
       "type": "geomap"
     },
     {
@@ -366,7 +366,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: -50h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"speed\")\n  |> filter(fn: (r) => r[\"_field\"] == \"speed\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> last()",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: -50h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"speed\")\n  |> filter(fn: (r) => r[\"_field\"] == \"speed\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> last()",
           "refId": "A"
         }
       ],
@@ -431,7 +431,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: -50h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> last()",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: -50h)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> last()",
           "refId": "A"
         }
       ],
@@ -524,7 +524,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"temperature\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -618,7 +618,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"battery_level\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"battery\")\n  |> filter(fn: (r) => r[\"_field\"] == \"battery_level\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -711,7 +711,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"speed\")\n  |> filter(fn: (r) => r[\"_field\"] == \"speed\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"speed\")\n  |> filter(fn: (r) => r[\"_field\"] == \"speed\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -761,7 +761,7 @@
               "mode": "dashed"
             }
           },
-          "displayName": "tires pressure - $vehicle_id",
+          "displayName": "tires pressure - $device_id",
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -813,7 +813,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"tires\")\n  |> filter(fn: (r) => r[\"_field\"] == \"front_tire_pressure\")\n  |> filter(fn: (r) => r[\"vehicle_id\"] == \"${vehicle_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")\n",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"tires\")\n  |> filter(fn: (r) => r[\"_field\"] == \"front_tire_pressure\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"${device_id}\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")\n",
           "refId": "A"
         }
       ],
@@ -832,12 +832,12 @@
           "text": "5",
           "value": "5"
         },
-        "definition": "from(bucket: \"telemetry\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => exists r.vehicle_id)\n  |> distinct(column: \"vehicle_id\")",
+        "definition": "from(bucket: \"telemetry\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => exists r.device_id)\n  |> distinct(column: \"device_id\")",
         "includeAll": false,
-        "name": "vehicle_id",
+        "name": "device_id",
         "options": [],
         "query": {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => exists r.vehicle_id)\n  |> distinct(column: \"vehicle_id\")"
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => exists r.device_id)\n  |> distinct(column: \"device_id\")"
         },
         "refresh": 1,
         "regex": "",
