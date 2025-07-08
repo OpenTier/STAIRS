@@ -1,10 +1,10 @@
 # Grafana Monitoring Setup
 
-This directory contains the complete Grafana monitoring setup for the Open Tier Platform, providing comprehensive visualization and alerting for vehicle fleet management, infrastructure monitoring, and system logs.
+This directory contains the complete Grafana monitoring setup for the Open Tier Platform, providing comprehensive visualization and alerting for device fleet management, infrastructure monitoring, and system logs.
 
 ## Overview
 
-Grafana is configured as the primary visualization and alerting platform, integrating with multiple data sources to provide real-time insights into vehicle telemetry, system performance, and operational status.
+Grafana is configured as the primary visualization and alerting platform, integrating with multiple data sources to provide real-time insights into device telemetry, system performance, and operational status.
 
 ## Configuration
 
@@ -22,7 +22,7 @@ The platform integrates with three primary data sources:
 1. **InfluxDB** (Primary)
 
    - Type: Time-series database
-   - Purpose: Vehicle telemetry data storage
+   - Purpose: Device telemetry data storage
    - Configuration: Flux query language enabled
    - Default bucket for telemetry data
 
@@ -65,10 +65,10 @@ Contains infrastructure and system monitoring dashboards:
 
 #### 2. Telemetry Data Dashboard (`telemetry-data-dashboard.json`)
 
-**Purpose**: Vehicle speed monitoring and telemetry visualization
+**Purpose**: Device speed monitoring and telemetry visualization
 **Key Panels**:
 
-- **Vehicle Speed**: Real-time speed tracking with threshold alerts
+- **Device Speed**: Real-time speed tracking with threshold alerts
 - Time-series visualization with 5-second aggregation windows
 - Speed limits visualization (100 km/h threshold)
 
@@ -80,29 +80,29 @@ Contains infrastructure and system monitoring dashboards:
 - **Logs Panel**: Real-time log streaming from all services
 - Integration with Loki for log aggregation
 
-#### 4. Vehicle Location Map Dashboard (`vehicle-location-map-dashboard.json`)
+#### 4. Device Location Map Dashboard (`device-location-map-dashboard.json`)
 
 **Purpose**: Geographic tracking and fleet visualization
 **Key Panels**:
 
-- **Vehicles Map**: Real-time vehicle positioning
-- **Vehicle Coordinates Table**: Detailed location data in tabular format
+- **Devices Map**: Real-time device positioning
+- **Device Coordinates Table**: Detailed location data in tabular format
 - Geographic visualization for fleet management
 
-### Vehicles Folder
+### Devices Folder
 
-Contains vehicle-specific monitoring dashboards:
+Contains device-specific monitoring dashboards:
 
-#### Vehicle Dashboard (`vehicles/vehicle-dashboard.json`)
+#### Device Dashboard (`devices/device-dashboard.json`)
 
-**Purpose**: Individual vehicle monitoring and diagnostics
+**Purpose**: Individual device monitoring and diagnostics
 **Key Panels**:
 
-- **Connectivity Status**: Vehicle communication health
+- **Connectivity Status**: Device communication health
 - **Battery Monitoring**:
   - Battery level percentage
   - Battery temperature monitoring
-- **Location Tracking**: Individual vehicle map with real-time positioning
+- **Location Tracking**: Individual device map with real-time positioning
 - **Performance Metrics**:
   - Speed monitoring (km/h)
   - Engine temperature tracking
@@ -122,11 +122,11 @@ The platform implements a comprehensive alerting system in the "battery-status" 
 - **Duration**: 10 seconds
 - **Purpose**: Immediate notification for critical battery levels requiring urgent attention
 
-#### 2. Vehicle Speed DANGER
+#### 2. Device Speed DANGER
 
 - **Trigger**: Speed > 100 km/h
 - **Duration**: 15 seconds
-- **Purpose**: Safety alert for excessive vehicle speeds
+- **Purpose**: Safety alert for excessive device speeds
 
 #### 3. Engine Temperature DANGER
 
@@ -152,7 +152,7 @@ The platform implements a comprehensive alerting system in the "battery-status" 
 ## Data Flow Architecture
 
 ```
-Vehicle Telemetry → InfluxDB → Grafana Dashboards
+Device Telemetry → InfluxDB → Grafana Dashboards
 System Metrics → Prometheus → Infrastructure Dashboard
 Application Logs → Loki → Logs Dashboard
 ```
@@ -163,7 +163,7 @@ Application Logs → Loki → Logs Dashboard
 
 1. **Default View**: Infrastructure monitoring loads automatically
 2. **Services Folder**: System and infrastructure monitoring
-3. **Vehicles Folder**: Vehicle-specific dashboards and fleet management
+3. **Devices Folder**: Device-specific dashboards and fleet management
 
 ### Setting Up Alerts
 
@@ -181,11 +181,11 @@ Application Logs → Loki → Logs Dashboard
 
 - Default: Last 24 hours
 - Configurable per dashboard
-- Real-time data updates for vehicle monitoring
+- Real-time data updates for device monitoring
 
 ## Integration Points
 
-### Vehicle Telemetry
+### Device Telemetry
 
 - Battery level and temperature monitoring
 - Speed and location tracking
@@ -201,9 +201,9 @@ Application Logs → Loki → Logs Dashboard
 
 ### Fleet Management
 
-- Multi-vehicle oversight
+- Multi-device oversight
 - Geographic fleet distribution
-- Performance analytics across vehicles
+- Performance analytics across devices
 - Predictive maintenance insights
 
 ## Reference Links

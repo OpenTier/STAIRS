@@ -7,8 +7,8 @@ providers:
     options:
       path: "/etc/grafana/provisioning/dashboards"
 
-  - name: "Vehicles"
-    folder: "Vehicles"
+  - name: "Devices"
+    folder: "Devices"
     type: file
     options:
-      path: "/etc/grafana/provisioning/dashboards/vehicles"
+      path: "/etc/grafana/provisioning/dashboards/devices"

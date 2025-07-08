@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 7,
+  "id": 14,
   "links": [],
   "panels": [
     {
@@ -71,7 +71,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 0
       },
@@ -120,6 +120,79 @@
     },
     {
       "datasource": {
+        "uid": "influxdb-3"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "LOCK": {
+                  "index": 0,
+                  "text": "🔒 Locked"
+                },
+                "UNLOCK": {
+                  "index": 1,
+                  "text": "🔓 Unlocked"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^system_state 10$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: -90d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"lock_state\")\n  |> filter(fn: (r) => r[\"_field\"] == \"system_state\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"10\")\n  |> last()\n",
+          "refId": "A"
+        }
+      ],
+      "title": "System State",
+      "type": "stat"
+    },
+    {
+      "datasource": {
         "type": "influxdb",
         "uid": "influxdb-3"
       },
@@ -151,8 +224,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 6,
+        "w": 4,
+        "x": 8,
         "y": 0
       },
       "id": 3,
@@ -272,7 +345,7 @@
                 }
               }
             },
-            "name": "Vehicle",
+            "name": "Device",
             "tooltip": true,
             "type": "markers"
           }
@@ -283,8 +356,8 @@
         "view": {
           "allLayers": true,
           "id": "coords",
-          "lat": 24.818789,
-          "lon": 46.618269,
+          "lat": 50.7323,
+          "lon": 7.0917,
           "zoom": 12.07
         }
       },
@@ -304,7 +377,7 @@
           "refId": "B"
         }
       ],
-      "title": "Vehicle ${device_id} Location Map",
+      "title": "Device ${device_id} Location Map",
       "type": "geomap"
     },
     {
@@ -829,8 +902,8 @@
     "list": [
       {
         "current": {
-          "text": "5",
-          "value": "5"
+          "text": "2",
+          "value": "2"
         },
         "definition": "from(bucket: \"telemetry\")\n  |> range(start: -7d)\n  |> filter(fn: (r) => exists r.device_id)\n  |> distinct(column: \"device_id\")",
         "includeAll": false,
@@ -846,12 +919,12 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Vehicle Dashboard",
-  "uid": "571da5da-7693-4e53-8d66-aca96c55b74d",
-  "version": 32
+  "title": "Device Dashboard Copy",
+  "uid": "1557553d-d890-4443-a450-197c0c7b643d",
+  "version": 1
 }

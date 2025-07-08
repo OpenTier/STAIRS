@@ -4,7 +4,7 @@
     {
       "orgId": 1,
       "name": "battery-status",
-      "folder": "Vehicles",
+      "folder": "Devices",
       "interval": "10s",
       "rules": [
         {
@@ -71,7 +71,7 @@
         },
         {
           "uid": "speed-monitor-danger",
-          "title": "Vehicle Speed DANGER - All Vehicles",
+          "title": "Device Speed DANGER - All Devices",
           "condition": "C",
           "data": [
             {
@@ -133,7 +133,7 @@
         },
         {
           "uid": "battery-temperature-warning",
-          "title": "Engine Temperature Warning - All Vehicles",
+          "title": "Engine Temperature Warning - All Devices",
           "condition": "C",
           "data": [
             {
@@ -195,7 +195,7 @@
         },
         {
           "uid": "battery-temperature-danger",
-          "title": "Engine Temperature DANGER - All Vehicles",
+          "title": "Engine Temperature DANGER - All Devices",
           "condition": "C",
           "data": [
             {

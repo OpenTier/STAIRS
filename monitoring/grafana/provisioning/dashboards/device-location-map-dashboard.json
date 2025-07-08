@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 8,
+  "id": 11,
   "links": [],
   "panels": [
     {
@@ -109,7 +109,7 @@
                 }
               }
             },
-            "name": "Vehicle",
+            "name": "Device",
             "tooltip": true,
             "type": "markers"
           }
@@ -120,8 +120,8 @@
         "view": {
           "allLayers": true,
           "id": "coords",
-          "lat": 24.802701,
-          "lon": 46.654169,
+          "lat": 50.7323,
+          "lon": 7.0917,
           "zoom": 11.4
         }
       },
@@ -132,7 +132,7 @@
           "refId": "A"
         }
       ],
-      "title": "Vehicles Map",
+      "title": "Devices Map",
       "type": "geomap"
     },
     {
@@ -194,7 +194,7 @@
           "refId": "A"
         }
       ],
-      "title": "Vehicle Coordinates Table",
+      "title": "Device Coordinates Table",
       "type": "table"
     }
   ],
@@ -202,7 +202,7 @@
   "refresh": "5s",
   "schemaVersion": 41,
   "tags": [
-    "vehicles",
+    "devices",
     "location",
     "map"
   ],
@@ -215,7 +215,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Vehicle Location Map Dashboard",
-  "uid": "vehicle-location-map",
-  "version": 5
+  "title": "Device Location Map Dashboard",
+  "uid": "device-location-map",
+  "version": 1
 }
