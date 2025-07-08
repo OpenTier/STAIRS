@@ -1,35 +1,71 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { InfluxDbService } from '../influxdb/influxdb.service';
 import { parseTimespanToSeconds } from './util/telemetry.util';
 import { trace } from '@opentelemetry/api';
+import { TelemetryEntryDto } from './dto/telemetry_entry.dto';
 
 // Metrics that support aggregation for statistics (min / max / mean)
 const metricsAgg = ['engine', 'battery', 'speed', 'tires'];
 
 @ApiBearerAuth()
-@ApiTags('fleet_management', 'telemetry')
+@ApiTags('telemetry')
 @Controller('telemetry')
 export class TelemetryController {
   constructor(private readonly influxDbService: InfluxDbService) {}
 
   @Get()
   @ApiOperation({
-    summary: 'Get aggregated metrics for each device based on the needed time',
+    summary:
+      'Get a single aggregated measurement per configured metrics for each device',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved aggregated measurements',
+    type: [TelemetryEntryDto],
+  })
+  @ApiQuery({
+    name: 'timespan',
+    description: 'Measurement timespan (e.g. -1h, -5s, -5m ...). Default: -1h',
+    required: false,
+    type: String,
+    schema: {
+      type: 'string',
+      default: '-1h',
+    },
+  })
+  @ApiQuery({
+    name: 'aggFunc',
+    description: 'Aggregation function (max / min / mean). Default: max',
+    required: false,
+    type: String,
+    schema: {
+      type: 'string',
+      default: 'max',
+      enum: ['mean', 'sum', 'min', 'max'],
+    },
   })
   async getTelemetryData(
     @Query('timespan') timespan: string = '-1h',
-    @Query('aggFunc') aggFunc: string = 'max',
+    @Query('aggFunc') aggFunc: 'mean' | 'sum' | 'min' | 'max' = 'max',
   ) {
     // Prepare queries - aggregated metrics are now numbers => no need to convert in the query
     const fluxQueries = metricsAgg.map(
       (measurement) => `from(bucket: "telemetry") \
-    |> range(start: ${timespan || '-1s'}) \
+    |> range(start: ${timespan}) \
     |> filter(fn: (r) => r._measurement == "${measurement}") \
     |> group(columns: ["device_id", "_field"]) \
     |> ${aggFunc}()`,
@@ -53,32 +89,74 @@ export class TelemetryController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get last telemetry samples for a device based on the needed time',
+    summary:
+      'Get the last measurements per configured metrics for a single device',
   })
-  @ApiResponse({ status: 200, description: 'Return the telemtry results' })
-  //@ApiResponse({ status: 404, description: 'Device not found.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Retrieved last measurements',
+    type: [TelemetryEntryDto],
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid number of samples',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Device ID (1, 2, 3 ...). Default: 1',
+    required: false,
+    type: Number,
+    schema: { type: 'integer', default: 1 },
+  })
+  @ApiQuery({
+    name: 'timespan',
+    description: 'Measurement timespan (e.g. -1h, -5s, -5m ...). Default: -10s',
+    required: false,
+    type: String,
+    schema: { type: 'string', default: '-10s' },
+  })
+  @ApiQuery({
+    name: 'nbSamples',
+    description: 'Number of samples to retrieve. Default: 1 (last sample)',
+    required: false,
+    type: Number,
+    schema: { type: 'integer', default: 1 },
+  })
+  @ApiQuery({
+    name: 'aggFunc',
+    description: 'Aggregation function (max / min / mean). Default: mean',
+    required: false,
+    type: String,
+    schema: {
+      type: 'string',
+      default: 'mean',
+      enum: ['mean', 'sum', 'min', 'max'],
+    },
+  })
   async getDeviceTelemetryData(
-    @Param('id') id: number,
-    @Query('timespan') timespan: string = '-10s', // to substitude for any latency in frontend cycle
+    @Param('id') id: number = 1,
+    @Query('timespan') timespan: string = '-10s',
     @Query('nbSamples') nbSamples: number = 1, // default: last sample
-    @Query('aggFunc') aggFunc: string = 'mean',
+    @Query('aggFunc') aggFunc: 'mean' | 'sum' | 'min' | 'max' = 'mean',
   ) {
+    if (nbSamples < 1) {
+      // Throw error
+      throw new BadRequestException('Invalid number of samples');
+    }
     const tracer = trace.getTracer('telemetry-device');
     // Get the window time for 1 sample
     // Convert timespan to seconds
     // Convert timespan to seconds dynamically
     const timespanSeconds = parseTimespanToSeconds(timespan);
-    //console.log(timespanSeconds);
     // Calculate window duration in seconds
     const windowDurationSeconds = Math.ceil(timespanSeconds / nbSamples);
-    //console.log(windowDurationSeconds);
 
     // Prepare queries
     const metricsNoAgg = ['lock_state', 'location']; // metrics in which we are interested in the last values
 
     const fluxQueriesAgg = metricsAgg.map(
       (measurement) => `from(bucket: "telemetry") \
-      |> range(start: ${timespan || '-1s'}) \
+      |> range(start: ${timespan}) \
       |> filter(fn: (r) => r._measurement == "${measurement}") \
       |> filter(fn: (r) => r.device_id == "${id}")
       |> aggregateWindow(every: ${windowDurationSeconds}s, fn: ${aggFunc})
@@ -87,7 +165,7 @@ export class TelemetryController {
     );
     const fluxQueriesNoAgg = metricsNoAgg.map(
       (measurement) => `from(bucket: "telemetry") \
-      |> range(start: ${timespan || '-1s'}) \
+      |> range(start: ${timespan}) \
       |> filter(fn: (r) => r._measurement == "${measurement}") \
       |> filter(fn: (r) => r.device_id == "${id}")
       |> limit(n: 1)`,
@@ -120,9 +198,14 @@ export class TelemetryController {
 
   @Get('maps/locations')
   @ApiOperation({
-    summary: 'Get latest location for the devices',
+    summary: 'Get latest location for all the devices',
   })
-  @ApiResponse({ status: 200, description: 'Return the location results' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Return the latest location results (latitude and longitude) for all devices during the last hour',
+    type: [TelemetryEntryDto],
+  })
   async getLocations() {
     // Prepare query
     const fluxQuery = `from(bucket: "telemetry") \
@@ -144,10 +227,23 @@ export class TelemetryController {
 
   @Get(':id/maps/locations')
   @ApiOperation({
-    summary: 'Get locations history for a specific device',
+    summary:
+      'Get all location measurements for a specific device in the last hour. Useful for route tracking.',
   })
-  @ApiResponse({ status: 200, description: 'Return the location results' })
-  async getDeviceLocationHistory(@Param('id') id: number) {
+  @ApiResponse({
+    status: 200,
+    description:
+      'Return the location results (latitude and longitude) for a specific device during the last hour.',
+    type: [TelemetryEntryDto],
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Device ID (1, 2, 3 ...). Default: 1',
+    required: false,
+    type: Number,
+    schema: { type: 'integer', default: 1 },
+  })
+  async getDeviceLocationHistory(@Param('id') id: number = 1) {
     // Prepare query
     const fluxQuery = `from(bucket: "telemetry") \
   |> range(start: -1h) \

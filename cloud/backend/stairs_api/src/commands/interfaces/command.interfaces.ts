@@ -3,16 +3,10 @@ export interface CommandInterface {
   id: number;
   deviceId: number;
   userId: number;
-  method: CommandMethod;
   control: CommandControl;
   command: CommandLockCommand | CommandHornCommand | CommandLightsCommand;
   status: CommandStatus;
   timestamp: Date;
-}
-
-export enum CommandMethod {
-  FLEET_MANAGEMENT_UI = 0,
-  COURIER_APP = 1,
 }
 
 export enum CommandControl {

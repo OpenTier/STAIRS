@@ -6,7 +6,7 @@ export class CreateDeviceDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  deviceId: string;
+  code: string;
 
   @ApiProperty()
   @IsNotEmpty()

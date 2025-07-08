@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { DevicesModule } from './devices/devices.module';
-import { TripsModule } from './trips/trips.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 import { InfluxDbModule } from './influxdb/influxdb.module';
@@ -47,7 +46,6 @@ import { CommandsModule } from './commands/commands.module';
     UsersModule,
     // AuthModule, TODO: for development Auth is turned off for now
     DevicesModule,
-    TripsModule,
     InfluxDbModule,
     TelemetryModule,
     CommandsModule,

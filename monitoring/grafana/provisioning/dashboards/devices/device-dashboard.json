@@ -174,7 +174,7 @@
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "/^system_state 10$/",
+          "fields": "/^system_state 1$/",
           "values": false
         },
         "showPercentChange": false,
@@ -184,7 +184,7 @@
       "pluginVersion": "12.0.0",
       "targets": [
         {
-          "query": "from(bucket: \"telemetry\")\n  |> range(start: -90d)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"lock_state\")\n  |> filter(fn: (r) => r[\"_field\"] == \"system_state\")\n  |> filter(fn: (r) => r[\"device_id\"] == \"10\")\n  |> last()\n",
+          "query": "from(bucket: \"telemetry\")\n  |> range(start: -5m)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"lock_state\")\n  |> filter(fn: (r) => r[\"_field\"] == \"system_state\")\n  |> filter(fn: (r) => r[\"device_id\"] == r.device_id)\n  |> last()\n",
           "refId": "A"
         }
       ],
@@ -377,7 +377,7 @@
           "refId": "B"
         }
       ],
-      "title": "Device ${device_id} Location Map",
+      "title": "Location",
       "type": "geomap"
     },
     {
@@ -508,7 +508,7 @@
           "refId": "A"
         }
       ],
-      "title": "Engine temperature",
+      "title": "Engine Temperature (Celsius)",
       "type": "gauge"
     },
     {
@@ -601,7 +601,7 @@
           "refId": "A"
         }
       ],
-      "title": "Engine temperature",
+      "title": "Engine Temperature (Celsius)",
       "type": "timeseries"
     },
     {
@@ -695,7 +695,7 @@
           "refId": "A"
         }
       ],
-      "title": "Battery (%)",
+      "title": "Battery Charge (%)",
       "type": "timeseries"
     },
     {
@@ -890,7 +890,7 @@
           "refId": "A"
         }
       ],
-      "title": "Tires Pressure",
+      "title": "Tires Pressure (psi)",
       "type": "timeseries"
     }
   ],
@@ -919,7 +919,7 @@
     ]
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},

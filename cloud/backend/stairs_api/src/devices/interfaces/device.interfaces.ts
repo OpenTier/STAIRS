@@ -8,7 +8,7 @@ export enum DeviceStatus {
 
 export interface DeviceInterface {
   id: number;
-  deviceId: string;
+  code: string;
   make: string;
   model: string;
   name: string;

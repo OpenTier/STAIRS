@@ -17,7 +17,7 @@ import { AuthService } from './auth.service';
 import { Public } from './decorators/public.decorator';
 
 @ApiBearerAuth()
-@ApiTags('fleet_management', 'auth')
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

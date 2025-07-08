@@ -10,7 +10,7 @@ import {
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc';
 import { logs } from '@opentelemetry/api-logs';
 
-// 1) Build your Resource
+// 1) Build the Resource
 const resource = resourceFromAttributes({
   'service.name': 'stairs_api',
   'service.instance.id': 'instance-1',
@@ -24,8 +24,8 @@ const logExporter = new OTLPLogExporter({
   credentials: credentials.createInsecure(),
 });
 
-// 4) **Batch** your logs and register the processor
-loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(logExporter)); // <–– JS SDK still uses addLogRecordProcessor + BatchLogRecordProcessor :contentReference[oaicite:0]{index=0}
+// 4) **Batch** logs and register the processor
+loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(logExporter));
 
 // 5) Hook it into the global API
 logs.setGlobalLoggerProvider(loggerProvider);

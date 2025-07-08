@@ -2,7 +2,7 @@ import { DeviceStatus } from '../interfaces/device.interfaces';
 
 const seedDevices = [
   {
-    deviceId: 'VEHICLE1VIN',
+    code: 'VEHICLE1VIN',
     make: 'Velocitia',
     model: 'Stratus EV-S',
     name: 'Fleet Car #7',
@@ -12,7 +12,7 @@ const seedDevices = [
     provisionStatus: DeviceStatus.ACTIVE,
   },
   {
-    deviceId: 'thermo-003958',
+    code: 'thermo-003958',
     make: 'HeatSync',
     model: 'T900-Pro',
     name: 'Living Room Thermostat',
@@ -22,7 +22,7 @@ const seedDevices = [
     provisionStatus: DeviceStatus.ACTIVE,
   },
   {
-    deviceId: 'iaq-plant-00212',
+    code: 'iaq-plant-00212',
     make: 'AeroSense',
     model: 'AQX-500',
     name: 'Factory Zone A - Sensor',
@@ -32,7 +32,7 @@ const seedDevices = [
     provisionStatus: DeviceStatus.ACTIVE,
   },
   {
-    deviceId: 'scooter-11235',
+    code: 'scooter-11235',
     make: 'UrbanGo',
     model: 'X2-EV',
     name: 'Scooter #11235',
@@ -42,7 +42,7 @@ const seedDevices = [
     provisionStatus: DeviceStatus.ACTIVE,
   },
   {
-    deviceId: 'lock-78421',
+    code: 'lock-78421',
     make: 'SecureHive',
     model: 'Lockit-X',
     name: 'Front Door Lock',
@@ -52,7 +52,7 @@ const seedDevices = [
     provisionStatus: DeviceStatus.MAINTENANCE,
   },
   {
-    deviceId: 'wx-44321',
+    code: 'wx-44321',
     make: 'ClimaTrack',
     model: 'CT-WX1000',
     name: 'Rooftop Weather Station',

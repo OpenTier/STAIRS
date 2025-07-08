@@ -12,17 +12,19 @@ async function bootstrap() {
 
   // Setup Swagger documentation
   const config = new DocumentBuilder()
-    .setTitle('Fleet Management API')
-    .setDescription('The API for the Fleet Management System')
+    .setTitle('STAIRS API')
+    .setDescription('STAIRS API docs with NestJS + Swagger')
     .setVersion('1.0')
-    .addTag('fleet_management')
     .addBearerAuth(
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT',
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('docs', app, document, {
+    explorer: true,
+    customSiteTitle: 'STAIRS API Docs',
+  });
 
   // Setup and start the application
   const port = configService.get<number>('BACKEND_PORT', 3000);

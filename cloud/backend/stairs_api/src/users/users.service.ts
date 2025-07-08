@@ -12,15 +12,15 @@ export class UsersService {
       email: 'john.doe@gmail.com',
       salt: 'salt',
       password: 'changeme',
-      role: 'fleet_manager',
+      role: 'manager',
     },
     {
       id: 2,
-      name: 'Karl Courier',
-      email: 'karl.courier@gmail.com',
+      name: 'Karl Contri',
+      email: 'karl.contri@gmail.com',
       salt: 'salt',
       password: 'guess',
-      role: 'courier',
+      role: 'contributor',
     },
   ];
 

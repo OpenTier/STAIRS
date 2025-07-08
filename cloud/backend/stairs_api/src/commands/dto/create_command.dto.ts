@@ -5,7 +5,6 @@ import {
   CommandHornCommand,
   CommandLightsCommand,
   CommandLockCommand,
-  CommandMethod,
 } from '../interfaces/command.interfaces';
 
 export class CreateCommandDto {
@@ -14,9 +13,6 @@ export class CreateCommandDto {
   @IsNotEmpty()
   @IsNumber()
   deviceId: number;
-  //userId: number; // TBD later on
-  @ApiProperty()
-  method: CommandMethod;
   @ApiProperty()
   @IsNotEmpty()
   control: CommandControl;

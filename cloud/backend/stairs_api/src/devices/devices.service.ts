@@ -32,9 +32,22 @@ export class DevicesService implements OnModuleInit {
     }
 
     console.log('Device table is empty — seeding initial data…');
-    // Arbitrary wait for device gateway to be ready
-    // This is a workaround to ensure the device gateway is ready before seeding.
-    await new Promise((resolve) => setTimeout(resolve, 20000));
+    // Keep fetching the health API of the device gateway till it returns OK or timeout of 20 retries
+    const deviceGwUrl = `${process.env.DEVICE_GW}/health`;
+    let remainingRetries = 20;
+    while (remainingRetries > 0) {
+      try {
+        const response = await fetch(deviceGwUrl);
+        if (response.ok) {
+          console.debug('Device gateway is ready.');
+          break;
+        }
+      } catch {
+        console.debug('Device gateway is not ready yet, retrying...');
+      }
+      remainingRetries--;
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retrying
+    }
 
     // 2) Use hardcoded seed data
     const rows = seedDevices;
@@ -43,7 +56,7 @@ export class DevicesService implements OnModuleInit {
     for (const entry of rows) {
       try {
         await this.create({
-          deviceId: entry.deviceId,
+          code: entry.code,
           make: entry.make,
           model: entry.model,
           name: entry.name,
@@ -52,10 +65,10 @@ export class DevicesService implements OnModuleInit {
           image: entry.image,
           provisionStatus: entry.provisionStatus,
         });
-        console.log(`Seeded device Device with ID=${entry.deviceId}`);
+        console.log(`Seeded device with code = ${entry.code}`);
       } catch (e) {
         console.error(
-          `Failed to seed Device with ID =${entry.deviceId}: ${e.message}`,
+          `Failed to seed device with code = ${entry.code}: ${e.message}`,
         );
       }
     }
@@ -93,16 +106,18 @@ export class DevicesService implements OnModuleInit {
     });
 
     // Data validation
-    let existingDeviceId;
+    let existingDeviceCode;
     await tracer.startActiveSpan('device-db-operation', async (span) => {
-      existingDeviceId = await this.deviceRepository.findOne({
-        where: { deviceId: createDeviceDto.deviceId },
+      existingDeviceCode = await this.deviceRepository.findOne({
+        where: {
+          code: createDeviceDto.code,
+        },
       });
       span.end();
     });
-    if (existingDeviceId) {
+    if (existingDeviceCode) {
       throw new BadRequestException(
-        `Device with Device ID ${createDeviceDto.deviceId} already exists`,
+        `Device with code ${createDeviceDto.code} already exists`,
       );
     }
     let existingName;
@@ -129,7 +144,6 @@ export class DevicesService implements OnModuleInit {
     }
 
     // Post to the device gateway
-    // For now, ignore this for simulated devices (will give an error unless Carla is working)
     try {
       const deviceGwUrl = `${process.env.DEVICE_GW}/device`;
       let response;
@@ -143,7 +157,7 @@ export class DevicesService implements OnModuleInit {
             },
             body: JSON.stringify({
               entity_id: device.id.toString(),
-              vin: createDeviceDto.deviceId,
+              vin: createDeviceDto.code,
             }),
           });
           console.debug(await response.json());
@@ -196,16 +210,16 @@ export class DevicesService implements OnModuleInit {
     }
 
     // 2) Data validation (to have meaningful error messages instead of DB exceptions)
-    let existingDeviceId;
+    let existingDeviceCode;
     await tracer.startActiveSpan('device-db-operation', async (span) => {
-      existingDeviceId = await this.deviceRepository.findOne({
-        where: { deviceId: deviceDto.deviceId },
+      existingDeviceCode = await this.deviceRepository.findOne({
+        where: { code: deviceDto.code },
       });
       span.end();
     });
-    if (existingDeviceId && existingDeviceId.id !== id) {
+    if (existingDeviceCode && existingDeviceCode.id !== id) {
       throw new BadRequestException(
-        `Device with ID ${deviceDto.deviceId} already exists`,
+        `Device with code ${deviceDto.code} already exists`,
       );
     }
     let existingName;
@@ -268,13 +282,6 @@ export class DevicesService implements OnModuleInit {
       return result;
     } catch (error) {
       throw new BadRequestException(error);
-    }
-  }
-
-  async remove(id: number): Promise<void> {
-    const result = await this.deviceRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Device with ID ${id} not found`);
     }
   }
 }

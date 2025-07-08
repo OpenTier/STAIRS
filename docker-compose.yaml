@@ -45,13 +45,12 @@ x-stairs-api-env: &stairs-api-env
   PRODUCTION: "true"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
   OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-  SKIP_SIMULATED_VEHICLES: "true" # if Carla is not working, do not inform vehicle gateway about simulated vehicles created => set to "true"
+  DEVICE_GW: http://vehicle_gateway:8005
 
 x-vehicle-gateway-env: &vehicle-gateway-env
   <<: [ *influxdb-env, *rust-log, *mongodb-uri, *zenoh-topics ]
   SIM_SERVICE_ENDPOINT: "http://172.20.0.14:8006"
-  SKIP_LOCATION_WRITING: "true" # whether or not to skip writing the location of the vehicle to InfluxDB
-  # Set to "true" to rely on write-dummy-data producing locations on a route in Riyadh instead of random path
+  SKIP_LOCATION_WRITING: "false" # whether or not to skip writing the location of the vehicle to InfluxDB
 
 x-cloud-router-env: &cloud-router-env
   <<: *rust-log
@@ -144,6 +143,8 @@ services:
     environment: *postgres-env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # to be able to access it directly outside the container
     networks:
       private_cloud_network:
         ipv4_address: 172.20.0.30
