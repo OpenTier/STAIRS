@@ -1,0 +1,33 @@
+name: Build Validation
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build Services
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          [
+            "stairs_api",
+            "device_gateway",
+            "cloud_router",
+          ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ORG_PAT_TOKEN }}
+          submodules: recursive
+
+      - name: Build ${{ matrix.service }}
+        run: |
+          echo "Building ${{ matrix.service }}..."
+          if ! docker compose build "${{ matrix.service }}"; then
+            echo "::error::Failed to build ${{ matrix.service }}"
+            exit 1
+          fi
+          echo "${{ matrix.service }} built successfully"
