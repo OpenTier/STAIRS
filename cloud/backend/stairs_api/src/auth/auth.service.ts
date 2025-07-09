@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
+import { trace } from '@opentelemetry/api';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,13 @@ export class AuthService {
     name: string,
     password: string,
   ): Promise<{ access_token: string }> {
-    const user = await this.usersService.findOne(name);
+    const tracer = trace.getTracer('auth-login');
+    let user;
+    await tracer.startActiveSpan('device-db-operation', async (span) => {
+      user = await this.usersService.findOne(name);
+      span.end();
+    });
+
     /* Of course in a real application, you wouldn't store a password
     in plain text. You'd instead use a library like bcrypt,
     with a salted one-way hash algorithm.
@@ -27,8 +34,13 @@ export class AuthService {
       throw new UnauthorizedException();
     }
     const payload = { name: user.name, sub: user.id };
+    let token;
+    await tracer.startActiveSpan('token-sign', async (span) => {
+      token = await this.jwtService.signAsync(payload);
+      span.end();
+    });
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: token,
     };
   }
 }

@@ -55,6 +55,10 @@ export class AuthController {
     status: 200,
     description: 'User authenticated. Returns the user token data',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized user. Please login first.',
+  })
   getProfile(@Request() req) {
     return req.user;
   }

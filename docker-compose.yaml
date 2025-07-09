@@ -1,10 +1,11 @@
-# YAML Anchors for common environment variables
+# InfluxDB configurations: tailor if needed to your DB
 x-influxdb-env: &influxdb-env
   INFLUXDB_HOST: "http://172.20.0.20:8086"
   INFLUXDB_TOKEN: "my-secret-token"
   INFLUXDB_BUCKET: "telemetry"
   INFLUXDB_ORG: "OpenTier"
 
+# Topics of communication between vehicle and cloud
 x-zenoh-topics: &zenoh-topics
   SPEED_TOPIC: "cloud/telemetry/speed"
   EXTERIOR_TOPIC: "cloud/telemetry/exterior"
@@ -14,16 +15,20 @@ x-zenoh-topics: &zenoh-topics
   TRIP_DATA_TOPIC: "cloud/telemetry/trip_data"
   BATTERY_EVENT_TOPIC: "cloud/telemetry/battery_event"
 
+# MongoDB configurations for device gateway (device status)
 x-mongodb-uri: &mongodb-uri
   MONGODB_URI: "mongodb://admin:secretpassword@172.20.0.40:27017/"
 
+# OTEL: enable or disable tracing feature
 x-enable-tracing: &enable-tracing
   ENABLE_TRACING: "true"
   OTEL_LOG_CORRELATION_ENABLED: "true"
 
+# Device loggigng level
 x-rust-log: &rust-log
   RUST_LOG: "info"
 
+# PostgreSQL configurations: tailor if needed to your DB
 x-postgres-env: &postgres-env
   POSTGRES_USER: "admin"
   POSTGRES_PASSWORD: "secretpassword"
@@ -36,8 +41,7 @@ x-postgresql-conn-env: &postgresql-conn-env
   POSTGRESQL_PASSWORD: "secretpassword"
   POSTGRESQL_DATABASE: "device_information"
 
-# Additional environment anchors extracted from service definitions
-
+# STAIRS API Service configurations
 x-stairs-api-env: &stairs-api-env
   <<: [ *influxdb-env, *postgresql-conn-env, *enable-tracing ]
   BACKEND_PORT: "3001"
@@ -45,17 +49,22 @@ x-stairs-api-env: &stairs-api-env
   PRODUCTION: "true"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
   OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-  DEVICE_GW: http://vehicle_gateway:8005
-  AUTH_ENABLED: "true" # Enable authentication
+  DEVICE_GW: http://device_gateway:8005
+  AUTH_ENABLED: "true"
+  # Enable authentication or not. See (Security) in README of this service
 
-x-vehicle-gateway-env: &vehicle-gateway-env
+# Device Gteway Service configurations
+x-device-gateway-env: &device-gateway-env
   <<: [ *influxdb-env, *rust-log, *mongodb-uri, *zenoh-topics ]
   SIM_SERVICE_ENDPOINT: "http://172.20.0.14:8006"
-  SKIP_LOCATION_WRITING: "false" # whether or not to skip writing the location of the vehicle to InfluxDB
+  SKIP_LOCATION_WRITING: "false"
+  # TODO: remove
 
+# Cloud Router Service configurations
 x-cloud-router-env: &cloud-router-env
   <<: *rust-log
 
+# Influx DB Service configurations
 x-influxdb-init-env: &influxdb-init-env
   DOCKER_INFLUXDB_INIT_MODE: setup
   DOCKER_INFLUXDB_INIT_USERNAME: admin
@@ -64,14 +73,17 @@ x-influxdb-init-env: &influxdb-init-env
   DOCKER_INFLUXDB_INIT_BUCKET: telemetry
   DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: my-secret-token
 
+# Mongo DB Service configurations
 x-mongodb-init-env: &mongodb-init-env
   MONGO_INITDB_ROOT_USERNAME: admin
   MONGO_INITDB_ROOT_PASSWORD: secretpassword
 
-x-scooter-env: &scooter-env
+# Device Service configurations
+x-device-env: &device-env
   <<: *rust-log
   DISPLAY: ":1"
   SLINT_BACKEND: "Qt"
+  # TODO: remove
 
 services:
   # Backend Services
@@ -87,22 +99,21 @@ services:
       private_cloud_network:
         ipv4_address: 172.20.0.11
     depends_on:
-      # Vehicle GW for initial provisioning of vehicles
-      vehicle_gateway:
+      device_gateway:
         condition: service_started
       postgres:
         condition: service_healthy
       influxdb:
         condition: service_healthy
 
-  vehicle_gateway:
+  device_gateway:
     build:
       context: .
       dockerfile: docker/backend/vehicle_gateway/Dockerfile
-    container_name: vehicle_gateway
+    container_name: device_gateway
     ports:
       - "8005:8005"
-    environment: *vehicle-gateway-env
+    environment: *device-gateway-env
     networks:
       private_cloud_network:
         ipv4_address: 172.20.0.12
@@ -129,7 +140,7 @@ services:
     networks:
       private_cloud_network:
         ipv4_address: 172.20.0.13
-      vehicle_network:
+      device_network:
         ipv4_address: 172.21.0.13
     ports:
       - "8000:8000" # Router REST API
@@ -190,20 +201,15 @@ services:
       timeout: 10s
       retries: 5
 
-  # Vehicle Services
-  scooter:
+  device:
     build:
       context: ./vehicles/scooter-demo
       dockerfile: docker/vehicle/Dockerfile
-    container_name: scooter
+    container_name: device
     networks:
-      vehicle_network:
+      device_network:
         ipv4_address: 172.21.0.11
-    environment: *scooter-env
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    profiles:
-      - scooter
+    environment: *device-env
 
 volumes:
   postgres_data:
@@ -224,7 +230,7 @@ networks:
       config:
         - subnet: 172.20.0.0/16
 
-  vehicle_network:
+  device_network:
     driver: bridge
     ipam:
       config:

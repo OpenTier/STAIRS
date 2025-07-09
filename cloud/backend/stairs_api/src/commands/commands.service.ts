@@ -7,8 +7,8 @@ import {
   CommandLockCommand,
   CommandStatus,
 } from './interfaces/command.interfaces';
-import { UpdateCommandDto } from './dto/update_command.dto';
 import { CreateCommandDto } from './dto/create_command.dto';
+import { trace } from '@opentelemetry/api';
 
 @Injectable()
 export class CommandsService {
@@ -27,76 +27,84 @@ export class CommandsService {
     });
   }
 
-  async update(
-    id: number,
-    updateCommandDto: UpdateCommandDto,
-  ): Promise<Command> {
-    const newCmd = await this.commandRepository.findOneBy({
-      id,
-      status: CommandStatus.PENDING,
-    });
-    if (!newCmd)
-      throw new BadRequestException(
-        `Command ID ${id} not found or is not pending`,
-      );
-    newCmd.status = updateCommandDto.status;
-    newCmd.timestamp = new Date();
-    return await this.commandRepository.save(newCmd);
-  }
-
   async create(commandDetails: CreateCommandDto): Promise<Command> {
     /* Check if there is a pending command */
-    const existingCmd = await this.commandRepository.findOneBy({
-      deviceId: commandDetails.deviceId,
-      control: commandDetails.control,
-      status: CommandStatus.PENDING,
+    const tracer = trace.getTracer('commands-create');
+    let existingCmd;
+    await tracer.startActiveSpan('device-db-operation', async (span) => {
+      existingCmd = await this.commandRepository.findOneBy({
+        deviceId: commandDetails.deviceId,
+        control: commandDetails.control,
+        status: CommandStatus.PENDING,
+      });
+      span.end();
     });
     if (existingCmd)
       throw new BadRequestException(
         `Pending ${commandDetails.control} command for device with ID ${commandDetails.deviceId} was found`,
       );
 
-    const newCommand = this.commandRepository.create({
-      ...commandDetails,
-      status: CommandStatus.PENDING,
-      timestamp: new Date(),
+    let newCommand;
+    await tracer.startActiveSpan('device-db-operation', async (span) => {
+      newCommand = this.commandRepository.create({
+        ...commandDetails,
+        status: CommandStatus.PENDING,
+        timestamp: new Date(),
+      });
+      span.end();
     });
 
     /* Save to DB */
-    await this.commandRepository.save(newCommand);
+    await tracer.startActiveSpan('device-db-operation', async (span) => {
+      await this.commandRepository.save(newCommand);
+      span.end();
+    });
 
     /* Integrate with device GW: */
-    try {
-      const cmdToDevice: string =
-        commandDetails.command === CommandLockCommand.LOCK ? 'lock' : 'unlock';
-      const deviceGwUrl: string = `${process.env.DEVICE_GW}/device/${commandDetails.deviceId}/${cmdToDevice}`;
+    await tracer.startActiveSpan('device-gateway-interaction', async (span) => {
+      try {
+        const cmdToDevice: string =
+          commandDetails.command === CommandLockCommand.LOCK
+            ? 'lock'
+            : 'unlock';
+        const deviceGwUrl: string = `${process.env.DEVICE_GW}/device/${commandDetails.deviceId}/${cmdToDevice}`;
 
-      const response = await fetch(deviceGwUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // TODO: there is no command id right now
-        // body: JSON.stringify({
-        //   command_id: newCommand.id
-        // }),
-      });
+        const response = await fetch(deviceGwUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          // TODO: there is no command id right now
+          // body: JSON.stringify({
+          //   command_id: newCommand.id
+          // }),
+        });
 
-      console.debug(await response.json());
+        console.debug(await response.json());
 
-      if (!response.ok) {
+        if (!response.ok) {
+          // Issue in command => should not keep it pending
+          newCommand.status = CommandStatus.REJECTED;
+        } else {
+          // Accepting the command currently means it is done
+          newCommand.status = CommandStatus.DONE;
+        }
+      } catch (error) {
         // Issue in command => should not keep it pending
         newCommand.status = CommandStatus.REJECTED;
-      } else {
-        // Accepting the command currently means it is done
-        newCommand.status = CommandStatus.DONE;
+        console.error(
+          'Error sending command to device gateway:',
+          error.message,
+        );
       }
-    } catch (error) {
-      // Issue in command => should not keep it pending
-      newCommand.status = CommandStatus.REJECTED;
-      console.error('Error sending command to device gateway:', error.message);
-    }
+      span.end();
+    });
 
-    return await this.commandRepository.save(newCommand);
+    let ret;
+    await tracer.startActiveSpan('device-db-operation', async (span) => {
+      ret = await this.commandRepository.save(newCommand);
+      span.end();
+    });
+    return ret;
   }
 }

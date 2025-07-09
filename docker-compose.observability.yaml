@@ -21,7 +21,7 @@ services:
   # 2. Node exporter
   #   - This service is used to monitor the host system metrics
   #   - It collects metrics from the host system and exposes them to Prometheus
-  #   - It is not a part of the OpenTier platform but is included for monitoring purposes
+  #   - It is not a part of the platform but is included for monitoring purposes
   node-exporter:
     image: prom/node-exporter:v1.9.1
     container_name: node-exporter
@@ -42,9 +42,9 @@ services:
       - 9100:9100
 
   # 3. Grafana OSS for visualization
-  #   - This service is used to visualize the metrics collected by Prometheus
+  #   - This service is used to visualize the metrics / logs / traces
   #   - It provides a web interface to create dashboards and graphs
-  #   - It is not a part of the OpenTier platform but is included for monitoring purposes
+  #   - It is not a part of the platform but is included for monitoring purposes
   grafana:
     image: grafana/grafana-oss:12.0.0-ubuntu
     container_name: grafana
@@ -73,7 +73,7 @@ services:
       - prometheus
 
   # 4. OpenTelemetry Collector
-  #   - This service is used to collect metrics and logs from the OpenTier platform
+  #   - This service is used to collect metrics / logs / traces
   otel-collector:
     image: otel/opentelemetry-collector:0.128.0
     volumes:
@@ -90,7 +90,7 @@ services:
       - loki
 
   # 5. Loki for log aggregation
-  #   - This service is used to collect and aggregate logs from the OpenTier platform
+  #   - This service is used to collect and aggregate logs
   loki:
     image: grafana/loki:main
     volumes:

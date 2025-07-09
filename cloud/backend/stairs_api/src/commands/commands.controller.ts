@@ -1,17 +1,8 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
@@ -19,7 +10,6 @@ import {
 import { CommandsService } from './commands.service';
 import { Command } from './command.entity';
 import { CommandControl, CommandStatus } from './interfaces/command.interfaces';
-import { UpdateCommandDto } from './dto/update_command.dto';
 import { CreateCommandDto } from './dto/create_command.dto';
 import { Public } from 'src/auth/decorators/public.decorator';
 
@@ -74,51 +64,16 @@ export class CommandsController {
   }
 
   @ApiBearerAuth()
-  @Patch(':commandId')
-  @ApiOperation({ summary: 'Cancel pending command' })
-  @ApiResponse({
-    status: 200,
-    description: 'Command is cancelled',
-    type: Command,
-  })
-  @ApiParam({
-    name: 'commandId',
-    description: 'Command ID (1, 2, 3 ...).',
-    required: true,
-    type: Number,
-    schema: { type: 'integer' },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Command does not exit or is not pending',
-  })
-  @ApiBody({
-    description: 'Payload to update command status',
-    required: true,
-    type: UpdateCommandDto,
-    examples: {
-      Cancel: {
-        summary: 'Cancel command',
-        value: {
-          status: 'Canceled',
-        },
-      },
-    },
-  })
-  updateCommandStatus(
-    @Param('commandId') commandId: number,
-    @Body() updateCommandDto: UpdateCommandDto,
-  ): Promise<Command> {
-    return this.commandsService.update(commandId, updateCommandDto);
-  }
-
-  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Issue new command' })
   @ApiResponse({
     status: 201,
     description: 'Command is added',
     type: Command,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized user. Please login first.',
   })
   @ApiResponse({
     status: 400,

@@ -1,55 +1,58 @@
-# STAIRS Platform Architecture
+# STAIRS Platform Architecture (v1.0.0)
 
-This document outlines the architecture and main components of the STAIRS platform (Scalable Technology for Automotive, IoT and Robotics Systems).
+This document outlines the architecture and main components of the STAIRS platform.
 
-## Overview
 
-STAIRS is built on a modular architecture designed for scalability, interoperability, and reliability. The platform leverages open source components to provide a comprehensive solution for automotive, IoT, and robotics systems.
+## Architecture Diagram
 
-## High-level System Architecture Diagram
+![STAIRS Overall Architecture](<STAIRS-Overall Architecture.drawio.png>)
 
-```mermaid
-flowchart TD
-    APPS[Applications] --> API[API Gateway]
-    API --> TWIN[Digital Twin]
-    ANALYTICS <--> STORAGE[Data Storage]
-    STORAGE <--> INGEST[Data Ingestion & Stream Processing]
-    INGEST --> GATEWAY[IoT Device Gateway]
-    TWIN <--> ANALYTICS[Analytics Engine]
-    GATEWAY --> EDGE[Edge Devices]
-    TWIN <--> GATEWAY
-    API --> ANALYTICS
-    API --> STORAGE
-    APPS <--> INGEST
-```
+## Components and Services
 
-## Main Components
+### Device
+* The embedded / IoT device(s) that are being monitored by the platform (i.e. can send / receive data to / from the platform).
+* This is *outside* the platform's scope.
+* For demonstration purposes, we are using a [vehicle-demo](../devices/).
 
-| Component                          | Description                                                                                                                                                                                       |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IoT Device Gateway                 | Handles communication with IoT devices using various protocols, ensuring secure and reliable connections. Responsible for protocol translation, device authentication, and message routing.       |
-| API Gateway                        | Provides a unified entry point for all client applications, handling authentication, rate limiting, and request routing. Manages access control and serves as the interface for external systems. |
-| Data Ingestion & Stream Processing | Manages the collection, transformation, and real-time processing of data streams from connected devices. It supports high-volume data flows for immediate analysis and action.                    |
-| Data Storage                       | Implements a scalable and reliable storage solution for both time-series data and structured device information. Optimized for various query patterns and retention policies.                     |
-| Analytics Engine                   | Processes collected data to derive insights, identify patterns, and generate actionable intelligence. Supports both batch processing for historical analysis and real-time analytics.             |
-| Edge Computing                     | Enables computation at the edge of the network to reduce latency and bandwidth usage for time-sensitive applications, processing data locally and synchronizing with the cloud.                   |
-| Digital Twin                       | Creates virtual representations of physical devices to simulate, analyze, and optimize device performance and behavior, enabling advanced monitoring and predictive maintenance.                  |
+### Device-Cloud Communication
+* The messaging layer between devices and cloud.
+* This is also *outside* the platform's scope, but will affect the code of some of its services.
+* For demonstration purposes, we are using a [vehicle-cloud-api](../api/)
+
+### Device-Cloud Router
+* The service that routes the communication between the `Device Gateway` and the `Device`.
+* We are using a [Zenoh router](../docker/backend/cloud_router/)
+
+### Device Gateway
+* Handles:
+    - Communication with IoT devices using various protocols, ensuring secure and reliable connections. Responsible for protocol translation, device authentication, and message routing.
+    - Data ingestion in the `Telemetry DB`.
+* We developed this [Device Gateway](../cloud/backend/) service.
+
+### Telemetry DB
+* Stores the measurements / metrics / data send by the devices authenticated and monitored by the `Device Gateway`.
+* This is a 3rd party Time-series DB.
+* We used an [Influx DB](../docker-compose.yaml) docker image.
+
+### Device DB
+* Stores:
+    - The static data that the STAIRS user will use to identify the device (e.g. code, name ...)
+    - The monitoring status of the device (activated or deactivated)
+* We used a [PostgreSQL DB](../docker-compose.yaml) docker image for device identifcation (managed by `API Gateway` service), and [Mongo DB](../docker-compose.yaml) docker image for device status (managed by `Device Gateway` service).
+
+### API Gateway
+* Provides a unified entry point (with REST APIs) for all client or 3rd-party applications, handling authentication, rate limiting, and request routing. Manages access control and serves as the interface for external systems.
+* We developed this [STAIRS API](../cloud/backend/stairs_api/README.md) service.
+
+### Observability Stack
+* Provides insights to the device data and system metircs / logs / traces.
+* This is optional in a separate docker compose: [docker-compose-observability.yaml](../docker-compose.observability.yaml).
+* See the [README](../README.md) file for more details.
 
 ## Technology Stack
 
 The STAIRS platform is designed to be technology-agnostic, allowing for flexibility in implementation. However, the reference architecture leverages proven open source technologies for each component.
 
-## Integration Points
+## Deployment
 
-The platform provides multiple integration points for extending functionality and connecting with external systems:
-- REST APIs for application integration
-- Message queues for event-driven communication
-- SDK libraries for client application development
-- Plugin architecture for custom extensions
-
-## Deployment Models
-
-STAIRS supports multiple deployment models:
-- Cloud-native deployment on public or private clouds
-- Hybrid deployment with edge components on-premises
-- Containerized deployment for easy scaling and management
+STAIRS supports containerized deployment for easy scaling and management.

@@ -57,6 +57,10 @@ export class DevicesController {
     description: 'Device successfully provisioned.',
     type: Device,
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized user. Please login first.',
+  })
   @ApiResponse({ status: 400, description: 'Invalid device data' })
   @ApiBody({
     description: 'Payload to add a device',
@@ -92,6 +96,10 @@ export class DevicesController {
     status: 200,
     description: 'Device successfully updated.',
     type: Device,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized user. Please login first.',
   })
   @ApiResponse({
     status: 400,
