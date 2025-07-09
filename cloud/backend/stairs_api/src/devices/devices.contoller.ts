@@ -10,13 +10,14 @@ import {
 import { DevicesService } from './devices.service';
 import { Device } from './device.entity';
 import { CreateDeviceDto } from './dto/create_device.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
-@ApiBearerAuth()
 @ApiTags('devices')
 @Controller('devices')
 export class DevicesController {
   constructor(private readonly devicesService: DevicesService) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all devices' })
   @ApiResponse({
@@ -28,6 +29,7 @@ export class DevicesController {
     return this.devicesService.findAll();
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Get a device by ID' })
   @ApiResponse({
@@ -47,6 +49,7 @@ export class DevicesController {
     return this.devicesService.findOne(id);
   }
 
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Provision a new device' })
   @ApiResponse({
@@ -80,12 +83,13 @@ export class DevicesController {
     return this.devicesService.create(createDeviceDto);
   }
 
+  @ApiBearerAuth()
   @Put(':id')
   @ApiOperation({
     summary: 'Update device information and/or provision status',
   })
   @ApiResponse({
-    status: 201,
+    status: 200,
     description: 'Device successfully updated.',
     type: Device,
   })

@@ -46,6 +46,7 @@ x-stairs-api-env: &stairs-api-env
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
   OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
   DEVICE_GW: http://vehicle_gateway:8005
+  AUTH_ENABLED: "true" # Enable authentication
 
 x-vehicle-gateway-env: &vehicle-gateway-env
   <<: [ *influxdb-env, *rust-log, *mongodb-uri, *zenoh-topics ]

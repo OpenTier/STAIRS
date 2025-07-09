@@ -6,7 +6,6 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -17,16 +16,17 @@ import { InfluxDbService } from '../influxdb/influxdb.service';
 import { parseTimespanToSeconds } from './util/telemetry.util';
 import { trace } from '@opentelemetry/api';
 import { TelemetryEntryDto } from './dto/telemetry_entry.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
 // Metrics that support aggregation for statistics (min / max / mean)
 const metricsAgg = ['engine', 'battery', 'speed', 'tires'];
 
-@ApiBearerAuth()
 @ApiTags('telemetry')
 @Controller('telemetry')
 export class TelemetryController {
   constructor(private readonly influxDbService: InfluxDbService) {}
 
+  @Public()
   @Get()
   @ApiOperation({
     summary:
@@ -87,6 +87,7 @@ export class TelemetryController {
     return result.flat();
   }
 
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary:
@@ -196,6 +197,7 @@ export class TelemetryController {
     return [...resultAgg.flat(), ...resultNoAgg.flat()];
   }
 
+  @Public()
   @Get('maps/locations')
   @ApiOperation({
     summary: 'Get latest location for all the devices',
@@ -225,6 +227,7 @@ export class TelemetryController {
     return result;
   }
 
+  @Public()
   @Get(':id/maps/locations')
   @ApiOperation({
     summary:

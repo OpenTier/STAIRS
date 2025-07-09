@@ -7,6 +7,9 @@ import * as Joi from 'joi';
 import { InfluxDbModule } from './influxdb/influxdb.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
 import { CommandsModule } from './commands/commands.module';
+import { AuthModule } from './auth/auth.module';
+
+const authEnabled = process.env.AUTH_ENABLED === 'true';
 
 @Module({
   imports: [
@@ -44,7 +47,7 @@ import { CommandsModule } from './commands/commands.module';
       }),
     }),
     UsersModule,
-    // AuthModule, TODO: for development Auth is turned off for now
+    ...(authEnabled ? [AuthModule] : []),
     DevicesModule,
     InfluxDbModule,
     TelemetryModule,

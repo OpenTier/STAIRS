@@ -21,13 +21,14 @@ import { Command } from './command.entity';
 import { CommandControl, CommandStatus } from './interfaces/command.interfaces';
 import { UpdateCommandDto } from './dto/update_command.dto';
 import { CreateCommandDto } from './dto/create_command.dto';
+import { Public } from 'src/auth/decorators/public.decorator';
 
-@ApiBearerAuth()
 @ApiTags('commands')
 @Controller('commands')
 export class CommandsController {
   constructor(private readonly commandsService: CommandsService) {}
 
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get all commands' })
   @ApiResponse({
@@ -44,13 +45,13 @@ export class CommandsController {
   })
   @ApiQuery({
     name: 'status',
-    description: 'Status to filter commands. Default: Pending',
+    description: 'Status to filter commands. Default: Done',
     required: false,
     type: String,
     schema: {
       type: 'string',
-      default: 'Pending',
-      enum: ['Pending', 'Done', 'Rejected', 'Cancelled'],
+      default: 'Done',
+      enum: ['Done', 'Pending', 'Rejected', 'Cancelled'],
     },
   })
   @ApiQuery({
@@ -72,6 +73,7 @@ export class CommandsController {
     return this.commandsService.findAll(deviceId, status, control);
   }
 
+  @ApiBearerAuth()
   @Patch(':commandId')
   @ApiOperation({ summary: 'Cancel pending command' })
   @ApiResponse({
@@ -110,6 +112,7 @@ export class CommandsController {
     return this.commandsService.update(commandId, updateCommandDto);
   }
 
+  @ApiBearerAuth()
   @Post()
   @ApiOperation({ summary: 'Issue new command' })
   @ApiResponse({
