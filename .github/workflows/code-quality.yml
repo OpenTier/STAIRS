@@ -1,0 +1,72 @@
+name: Code Quality Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-service-check:
+    name: Python Service Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          [
+            { name: "Vehicle Gateway", path: "cloud/backend/vehicle_gateway" },
+          ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ORG_PAT_TOKEN }}
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install black and flake8
+        run: pip install black flake8
+
+      - name: Check formatting with black
+        working-directory: ${{ matrix.service.path }}
+        run: black --check .
+
+      - name: Run flake8
+        working-directory: ${{ matrix.service.path }}
+        run: flake8 .
+
+  typescript-service-check:
+    name: TypeScript Service Check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          [
+            {
+              name: "STAIRS API",
+              path: "cloud/backend/stairs_api",
+            },
+          ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ORG_PAT_TOKEN }}
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.service.path }}
+        run: npm ci
+
+      - name: Run Lint
+        working-directory: ${{ matrix.service.path }}
+        run: npm run lint
