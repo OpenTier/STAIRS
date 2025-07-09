@@ -4,3 +4,6 @@
 [submodule "api/vehicle-cloud-api"]
 	path = api/vehicle-cloud-api
 	url = https://github.com/OpenTier/vehicle-cloud-api.git
+[submodule "vehicles/vehicle-demo"]
+	path = vehicles/vehicle-demo
+	url = git@github.com:OpenTier/vehicle-demo.git
