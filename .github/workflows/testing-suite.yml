@@ -47,7 +47,7 @@ jobs:
           docker compose -f docker-compose.yaml -f docker-compose.test.yaml build unified_tests
 
           # Run API tests only using the api-tests project
-          if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml run --rm unified_tests --project api-tests; then
+          if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml run --rm unified_tests /wait-for-services.sh --project api-tests; then
             echo "::error::API tests failed"
             exit 1
           fi
