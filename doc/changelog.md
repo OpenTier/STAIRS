@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2025-07-11
+## [0.1.0] - 2025-07-11
 
 ### Added
 - First stable release.
@@ -15,4 +15,4 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - N/A
 
-[1.0.0]: https://github.com/OpenTier/STAIRS/releases/tag/v1.0.0
+[0.1.0]: https://github.com/OpenTier/STAIRS/releases/tag/v0.1.0

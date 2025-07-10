@@ -1,4 +1,4 @@
-from device_gateway.twin.vehicle_state import VehicleState, VehicleType
+from device_gateway.twin.vehicle_state import VehicleState, DeviceType
 from device_gateway.twin.vehicle_state_subscriber import VehicleStateSubscriber
 from device_gateway.twin.robot_state_subscriber import RobotStateSubscriber
 from device_gateway.twin.vehicle_command_publisher import (
@@ -68,11 +68,11 @@ class TwinService:
                 )
             )
 
-            if vehicle_state.type == VehicleType.ROBOT:
+            if vehicle_state.type == DeviceType.ROBOT:
                 self._logger.info(f"Creating publishers for robot: {vehicle_id}")
                 self._robot_command_publisher.create_publisher(vehicle_id)
-            elif vehicle_state.type == VehicleType.SCOOTER and vehicle_state.is_real():
-                self._logger.info(f"Creating publishers for scooter: {vehicle_id}")
+            elif vehicle_state.type == DeviceType.VEHICLE:
+                self._logger.info(f"Creating publishers for vehicle: {vehicle_id}")
                 self._command_publisher.create_lock_publisher(self._session, vehicle_id)
                 self._command_publisher.create_turn_on_off_publisher(
                     self._session, vehicle_id
@@ -159,7 +159,7 @@ class TwinService:
             return False
 
         self._vehicle_repository.add_vehicle(
-            VehicleState(vin, entity_id, True, create_vehicle_data())
+            VehicleState(vin, entity_id, create_vehicle_data())
         )
         self._command_publisher.create_lock_publisher(self._session, vin)
         self._command_publisher.create_turn_on_off_publisher(self._session, vin)
@@ -201,7 +201,7 @@ class TwinService:
             self._logger.warning(f"Robot {robot_id} not found in repository")
             return False
 
-        if robot_state.type != VehicleType.ROBOT:
+        if robot_state.type != DeviceType.ROBOT:
             self._logger.warning(f"Vehicle {robot_id} exists but is not a robot")
             return False
 

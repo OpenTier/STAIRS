@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from device_gateway.configuration import Configuration
 from starlette.middleware.cors import CORSMiddleware
-from device_gateway.api.vehicles import router as vehicle_router
-from device_gateway.api.vehicles import twin_service
+from device_gateway.api.devices import router as device_router
+from device_gateway.api.devices import twin_service
 from device_gateway.api.robots import router as robot_router
 from device_gateway.api.health import router as health_router
 import logging
@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
     twin_service.stop()
 
 
-app = FastAPI(title="Vehicle Gateway", lifespan=lifespan)
+app = FastAPI(title="Device Gateway", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,6 +38,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(vehicle_router, tags=["vehicles"])
+app.include_router(device_router, tags=["devices"])
 app.include_router(robot_router, tags=["robots"])
 app.include_router(health_router, tags=["health"])

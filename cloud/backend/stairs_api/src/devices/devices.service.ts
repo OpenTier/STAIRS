@@ -157,7 +157,7 @@ export class DevicesService implements OnModuleInit {
             },
             body: JSON.stringify({
               entity_id: device.id.toString(),
-              vin: createDeviceDto.code,
+              entity_code: createDeviceDto.code,
             }),
           });
           console.debug(await response.json());

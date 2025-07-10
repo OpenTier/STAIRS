@@ -13,7 +13,7 @@
 * It is designed to support a wide range of devices and use cases from fixed installations to mobile/vehicle-based devices.
 
 ### 🔑 Available Features
-- Flexible communication between device and cloud using protobuf API
+- Flexible communication between device and cloud using protobuf
 - Real‑time dashboard to visualize device data
 - REST APIs for 3rd party integration or building custom UI
 - Logs and traces for the internal services of the platform
@@ -52,12 +52,11 @@ docker compose up -d
 ### 🏃 Quickstart
 Once the platform is up:
 * Go to [http://localhost:5000](http://localhost:5000) to see the dashboard (option 1)
-* Go to [http://localhost:3001/docs](http://localhost:3001/docs) to see the REST APIs documentation and live demo
+* Go to [http://localhost:3001/docs](http://localhost:3001/docs) to see the REST APIs documentation and interact with them
 
 ## 📖 Documentation
 - [Architecture](doc/architecture.md)
 - [(How To) Guides](./doc/how-to.md)
-- Configurations and Environment Variables: See [docker-compse](docker-compose.yaml) and [docker-compose-observability](docker-compose.observability.yaml)
 - [Roadmap](doc/roadmap.md)
 - [Contribution guidelines](CONTRIBUTING.md)
 - [License file](LICENSE.md)

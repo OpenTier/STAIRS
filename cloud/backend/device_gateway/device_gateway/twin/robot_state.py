@@ -1,4 +1,4 @@
-from device_gateway.twin.vehicle_state import VehicleState, VehicleType
+from device_gateway.twin.vehicle_state import VehicleState, DeviceType
 from device_gateway.generated import vehicle_msgs_pb2, robot_soccer_pb2
 from typing import Optional
 import logging
@@ -11,7 +11,7 @@ class RobotState(VehicleState):
         entity_id: int,
         state: Optional["vehicle_msgs_pb2.Vehicle"] = None,
     ) -> None:
-        super().__init__(robot_id, entity_id, True, state, VehicleType.ROBOT)
+        super().__init__(robot_id, entity_id, True, state, DeviceType.ROBOT)
         self._logger = logging.getLogger(__name__)
 
     def can_kick(self, power: float) -> bool:

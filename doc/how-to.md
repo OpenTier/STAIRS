@@ -2,11 +2,11 @@
 This is a guide on how to use or extend STAIRS
 
 ## Integrate your application using REST APIs
-1. Start STAIRS as described in the README file.
+1. Start STAIRS as described in the [README](../README.md).
 2. Go to [http://localhost:3001/docs](http://localhost:3001/docs) to see the REST APIs documentation and live demo.
-3. Make your application interact with STAIRS APIs.
+3. Update your application interact with STAIRS APIs.
 
-Note: see (Security) section in [STAIRS API README](../cloud/backend/stairs_api/README.md) for authentication.
+Note: see (Security) section in [API README](../cloud/backend/stairs_api/README.md) for authentication.
 
 ## Update the device-cloud messages
 1. Update the data in [api](../api/). This is directly reflected in the `device` and the `device_gateway`:

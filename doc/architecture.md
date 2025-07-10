@@ -1,4 +1,4 @@
-# STAIRS Platform Architecture (v1.0.0)
+# STAIRS Platform Architecture (v0.1.0)
 
 This document outlines the architecture and main components of the STAIRS platform.
 
@@ -55,4 +55,4 @@ The STAIRS platform is designed to be technology-agnostic, allowing for flexibil
 
 ## Deployment
 
-STAIRS supports containerized deployment for easy scaling and management.
+STAIRS currently supports containerized deployment for easy scaling and management.

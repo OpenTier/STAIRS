@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 import logging
-from device_gateway.api.vehicles import twin_service
+from device_gateway.api.devices import twin_service
 
 router = APIRouter()
 

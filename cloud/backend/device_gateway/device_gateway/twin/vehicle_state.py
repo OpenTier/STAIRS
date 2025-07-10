@@ -5,9 +5,8 @@ from typing import Optional
 from enum import Enum
 
 
-class VehicleType(Enum):
-    CAR = "car"
-    SCOOTER = "scooter"
+class DeviceType(Enum):
+    VEHICLE = "vehicle"
     ROBOT = "robot"
 
 
@@ -16,13 +15,11 @@ class VehicleState:
         self,
         vehicle_id: str,
         entity_id: int,
-        real: bool,
         state: Optional["vehicle_msgs_pb2.Vehicle"],
-        type: VehicleType = VehicleType.SCOOTER,
+        type: DeviceType = DeviceType.VEHICLE,
     ) -> None:
         self.vehicle_id = vehicle_id
         self.entity_id = entity_id
-        self.real = real
         self.type = type
 
         if state is None:
@@ -35,13 +32,9 @@ class VehicleState:
         return {
             "vehicle_id": self.vehicle_id,
             "entity_id": self.entity_id,
-            "real": self.real,
             "state": MessageToJson(self.state),
             "type": self.type.value,
         }
-
-    def is_real(self) -> bool:
-        return self.real
 
     @staticmethod
     def from_dict(data: dict) -> "VehicleState":
@@ -51,9 +44,8 @@ class VehicleState:
         return VehicleState(
             vehicle_id=data["vehicle_id"],
             entity_id=data.get("entity_id"),
-            real=data.get("real"),
             state=state,
-            type=VehicleType(data.get("type")),
+            type=DeviceType(data.get("type")),
         )
 
     def update_battery_data(self, data):

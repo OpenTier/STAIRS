@@ -36,6 +36,6 @@ This document outlines the planned features and current development status for t
 | Device Registration & Provisioning           | Enables the seamless onboarding of devices into the platform by automating the registration process, assigning unique identities, and initializing secure configurations. This is crucial for both fixed installations and mobile/vehicle-based devices.                         |
 | Device Lifecycle Management                  | Manages the full lifecycle of IoT devices—from deployment and operation through to retirement—by tracking device status, usage patterns, and maintenance requirements, which is particularly critical for long-lasting static devices and rapidly evolving device technologies. |
 
-## Timeline
+## Note
 
 The roadmap is subject to change based on community feedback and project priorities. If you're interested in contributing to any of these features, please check our [contribution guidelines](../CONTRIBUTING.md) and join the discussion in the issues section.

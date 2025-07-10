@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 from typing import Optional, List
-from device_gateway.twin.vehicle_state import VehicleState, VehicleType
+from device_gateway.twin.vehicle_state import VehicleState, DeviceType
 from device_gateway.twin.robot_state import RobotState
 import logging
 
@@ -33,7 +33,7 @@ class VehicleRepository:
             {"vehicle_id": vehicle_id}
         )
         if vehicle_data:
-            if vehicle_data.get("type") == VehicleType.ROBOT.value:
+            if vehicle_data.get("type") == DeviceType.ROBOT.value:
                 vehicle_state = RobotState(
                     vehicle_id,
                     vehicle_data["entity_id"],
@@ -57,7 +57,7 @@ class VehicleRepository:
             {"entity_id": entity_id}
         )
         if vehicle_data:
-            if vehicle_data.get("type") == VehicleType.ROBOT.value:
+            if vehicle_data.get("type") == DeviceType.ROBOT.value:
                 vehicle_state = RobotState(
                     vehicle_data["vehicle_id"],
                     entity_id,
@@ -86,7 +86,7 @@ class VehicleRepository:
 
         # Serialize VehicleState to dictionary and save to MongoDB
         vehicle_dict = vehicle.to_dict()
-        if vehicle.type == VehicleType.ROBOT.value:
+        if vehicle.type == DeviceType.ROBOT.value:
             vehicle_dict["robot"] = True
         await self.async_database.vehicles.update_one(
             {"vehicle_id": vehicle.vehicle_id}, {"$set": vehicle_dict}, upsert=True
@@ -115,7 +115,7 @@ class VehicleRepository:
         # Fetch from MongoDB if not in cache
         vehicle_data = self.sync_database.vehicles.find_one({"vehicle_id": vehicle_id})
         if vehicle_data:
-            if vehicle_data.get("type") == VehicleType.ROBOT.value:
+            if vehicle_data.get("type") == DeviceType.ROBOT.value:
                 vehicle_state = RobotState(
                     vehicle_id,
                     vehicle_data["entity_id"],
@@ -134,7 +134,7 @@ class VehicleRepository:
         # Fetch from MongoDB by entity_id
         vehicle_data = self.sync_database.vehicles.find_one({"entity_id": entity_id})
         if vehicle_data:
-            if vehicle_data.get("type") == VehicleType.ROBOT.value:
+            if vehicle_data.get("type") == DeviceType.ROBOT.value:
                 vehicle_state = RobotState(
                     vehicle_data["vehicle_id"],
                     entity_id,
