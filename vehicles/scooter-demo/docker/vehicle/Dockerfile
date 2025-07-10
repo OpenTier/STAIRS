@@ -64,6 +64,8 @@ COPY --from=builder /app/vehicle/twin_service/config/vehicle_initial_state.json5
 
 # copy run.sh to workdir
 COPY docker/vehicle/run.sh /app/run.sh
+# ensure run.sh is executable
+RUN chmod +x /app/run.sh
 
 # set run script as entrypoint
 ENTRYPOINT ["/app/run.sh"]

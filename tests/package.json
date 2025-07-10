@@ -1,0 +1,19 @@
+{
+  "name": "api-tests",
+  "version": "1.0.0",
+  "description": "API tests for the platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --grep '@api'",
+    "report": "playwright show-report",
+    "debug": "playwright test --debug"
+  },
+  "keywords": ["testing", "playwright", "api"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.17"
+  }
+}

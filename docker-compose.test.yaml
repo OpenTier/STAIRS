@@ -1,0 +1,27 @@
+services:
+  # Override stairs_api to disable authentication for testing
+  stairs_api:
+    environment:
+      - AUTH_ENABLED=false
+
+  # Unified tests service
+  unified_tests:
+    build:
+      context: .
+      dockerfile: docker/unified_tests/Dockerfile
+    container_name: unified_tests
+    environment:
+      - STAIRS_API_URL=http://stairs_api:3001
+      - DEVICE_GATEWAY_URL=http://device_gateway:8005
+      - CI=true
+    volumes:
+      - ./tests/test-results:/app/test-results
+      - ./tests/playwright-report:/app/playwright-report
+    networks:
+      - private_cloud_network
+      - public_cloud_network
+    depends_on:
+      - device_gateway
+      - stairs_api
+    # Note: Dependencies are handled by the main docker-compose.yaml
+    # Default command is handled by the wait script

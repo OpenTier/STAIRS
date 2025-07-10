@@ -1,0 +1,50 @@
+name: API Testing Suite
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Job for API tests only
+  api_tests:
+    name: Run API Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.ORG_PAT_TOKEN }}
+          submodules: recursive
+
+      - name: Start required backend services for API tests
+        run: |
+          # List of backend services required for API tests
+          SERVICES=("stairs_api" "device_gateway" "cloud_router")
+
+          for service in "${SERVICES[@]}"; do
+            echo "Starting $service..."
+            if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml up -d --build "$service"; then
+              echo "::error::Failed to start $service"
+              exit 1
+            fi
+            echo "$service started successfully"
+          done
+
+      - name: Run API tests
+        run: |
+          # Build unified tests container
+          docker compose -f docker-compose.yaml -f docker-compose.test.yaml build unified_tests
+
+          # Run API tests only
+          if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml run --rm unified_tests --project=api-tests; then
+            echo "::error::API tests failed"
+            exit 1
+          fi
+
+      - name: Upload API test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: |
+            tests/test-results
+            tests/playwright-report

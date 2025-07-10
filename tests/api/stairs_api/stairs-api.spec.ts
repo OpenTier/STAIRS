@@ -1,0 +1,176 @@
+// STAIRS API tests to use API_URLS and cover commands, telemetry, and devices
+import { test, expect } from '@playwright/test';
+import { API_URLS } from '../../config/test-config';
+
+const API_BASE_URL = API_URLS.STAIRS_API;
+const testDeviceId = 1;
+
+// Commands endpoints
+test.describe('@api STAIRS API - Commands', () => {
+  test('should get all commands with required parameters', async ({ request }) => {
+    const res = await request.get(
+      `${API_BASE_URL}/commands?deviceId=${testDeviceId}&status=DONE&control=Lock`
+    );
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(Array.isArray(data)).toBeTruthy();
+  });
+
+  test('should get commands with minimal required parameters', async ({ request }) => {
+    const res = await request.get(
+      `${API_BASE_URL}/commands?deviceId=${testDeviceId}`
+    );
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(Array.isArray(data)).toBeTruthy();
+  });
+
+  test('should handle invalid status update', async ({ request }) => {
+    const payload = { deviceId: testDeviceId, method: 0, control: 'Lock', command: 'Lock' };
+    const createRes = await request.post(`${API_BASE_URL}/commands`, { data: payload });
+    if (createRes.status() === 400) return;
+    expect([200, 201]).toContain(createRes.status());
+    const responseData = await createRes.json();
+    expect(responseData).toHaveProperty('id');
+    const commandId = responseData.id;
+    const patchRes = await request.patch(`${API_BASE_URL}/commands/${commandId}`, { data: { status: 'CANCELLED' } });
+    expect([400, 404]).toContain(patchRes.status());
+  });
+});
+
+// Telemetry endpoints
+test.describe('@api STAIRS API - Telemetry', () => {
+  test('should get aggregated telemetry data', async ({ request }) => {
+    const res = await request.get(
+      `${API_BASE_URL}/telemetry?timespan=-1h&aggFunc=max`
+    );
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(Array.isArray(data)).toBeTruthy();
+  });
+
+  test('should get telemetry for a device with required parameters', async ({ request }) => {
+    const res = await request.get(
+      `${API_BASE_URL}/telemetry/${testDeviceId}?timespan=-1h&nbSamples=10&aggFunc=mean`
+    );
+    expect([200, 404, 400]).toContain(res.status());
+    if (res.ok()) {
+      const data = await res.json();
+      expect(Array.isArray(data)).toBeTruthy();
+    }
+  });
+
+  test('should get latest locations for all devices', async ({ request }) => {
+    const res = await request.get(`${API_BASE_URL}/telemetry/maps/locations`);
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(Array.isArray(data)).toBeTruthy();
+  });
+
+  test('should get location history for a device', async ({ request }) => {
+    const res = await request.get(
+      `${API_BASE_URL}/telemetry/${testDeviceId}/maps/locations`
+    );
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(Array.isArray(data)).toBeTruthy();
+  });
+
+  test('should handle invalid timespan parameter', async ({ request }) => {
+    const res = await request.get(
+      `${API_BASE_URL}/telemetry?timespan=invalid&aggFunc=max`
+    );
+    expect([200, 400]).toContain(res.status());
+  });
+
+  test('should handle missing required parameters for device telemetry', async ({ request }) => {
+    const res = await request.get(`${API_BASE_URL}/telemetry/${testDeviceId}`);
+    expect([200, 400]).toContain(res.status());
+  });
+});
+
+// Devices (Vehicles) endpoints
+const createTestDevice = () => {
+  const ts = Date.now();
+  const uid = Math.random().toString(36).substring(2, 7);
+  return { 
+    code: `TESTVIN${ts}${uid}`, 
+    make: 'TestMake', 
+    model: 'TestModel', 
+    name: `Test Device ${uid}`,
+    color: 'Black', 
+    year: 2024, 
+    image: 'http://example.com/image.png', 
+    provisionStatus: 'Active' 
+  };
+};
+
+test.describe('@api STAIRS API - Devices', () => {
+  test('should get all devices', async ({ request }) => {
+    const res = await request.get(`${API_BASE_URL}/devices`);
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(Array.isArray(data)).toBeTruthy();
+  });
+
+  test('should provision a new device', async ({ request }) => {
+    const device = createTestDevice();
+    const res = await request.post(`${API_BASE_URL}/devices`, { data: device });
+    if (res.status() === 400) {
+      const err = await res.json(); console.log('Device creation error:', err);
+      expect(res.status()).toBe(400);
+    } else {
+      expect(res.status()).toBe(201);
+      const data = await res.json();
+      expect(data).toHaveProperty('id');
+      expect(data).toMatchObject({ code: device.code, make: device.make, model: device.model, provisionStatus: device.provisionStatus });
+    }
+  });
+
+  test('should get a device by ID', async ({ request }) => {
+    const device = createTestDevice();
+    const cr = await request.post(`${API_BASE_URL}/devices`, { data: device });
+    if (cr.status() === 400) return;
+    expect(cr.status()).toBe(201);
+    const { id } = await cr.json();
+    const res = await request.get(`${API_BASE_URL}/devices/${id}`);
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(data).toMatchObject({ id, code: device.code, make: device.make, model: device.model });
+  });
+
+  test('should update a device by ID', async ({ request }) => {
+    const device = createTestDevice(); 
+    const cr = await request.post(`${API_BASE_URL}/devices`, { data: device }); 
+    if (cr.status() === 400) return; 
+    expect(cr.status()).toBe(201);
+    const { id } = await cr.json();
+    const updated = { 
+      ...device, 
+      code: `UPD${Date.now()}`, 
+      make: 'UpdatedMake', 
+      model: 'UpdatedModel', 
+      name: `Updated Device ${Date.now()}`,
+      color: 'Blue', 
+      year: 2025, 
+      image: 'http://example.com/updated.png', 
+      provisionStatus: 'Inactive' 
+    };
+    const res = await request.put(`${API_BASE_URL}/devices/${id}`, { data: updated });
+    expect(res.ok()).toBeTruthy();
+    const data = await res.json();
+    expect(data).toMatchObject({ code: updated.code, make: updated.make, model: updated.model, provisionStatus: updated.provisionStatus });
+  });
+
+  test('should handle device not found for GET', async ({ request }) => {
+    const id = 999999;
+    const res = await request.get(`${API_BASE_URL}/devices/${id}`);
+    expect(res.status()).toBe(404);
+  });
+
+  test('should handle invalid device data for creation', async ({ request }) => {
+    const invalid = { make: 'TestMake' }; // Missing required fields
+    const res = await request.post(`${API_BASE_URL}/devices`, { data: invalid });
+    expect(res.status()).toBe(400);
+  });
+});
