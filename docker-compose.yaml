@@ -5,7 +5,7 @@ x-influxdb-env: &influxdb-env
   INFLUXDB_BUCKET: "telemetry"
   INFLUXDB_ORG: "OpenTier"
 
-# Topics of communication between vehicle and cloud
+# Topics of communication between device and cloud
 x-zenoh-topics: &zenoh-topics
   SPEED_TOPIC: "cloud/telemetry/speed"
   EXTERIOR_TOPIC: "cloud/telemetry/exterior"
@@ -56,9 +56,7 @@ x-stairs-api-env: &stairs-api-env
 # Device Gteway Service configurations
 x-device-gateway-env: &device-gateway-env
   <<: [ *influxdb-env, *rust-log, *mongodb-uri, *zenoh-topics ]
-  SIM_SERVICE_ENDPOINT: "http://172.20.0.14:8006"
-  SKIP_LOCATION_WRITING: "false"
-  # TODO: remove
+  LOG_LEVEL: "INFO"
 
 # Cloud Router Service configurations
 x-cloud-router-env: &cloud-router-env
@@ -109,7 +107,7 @@ services:
   device_gateway:
     build:
       context: .
-      dockerfile: docker/backend/vehicle_gateway/Dockerfile
+      dockerfile: docker/backend/device_gateway/Dockerfile
     container_name: device_gateway
     ports:
       - "8005:8005"
@@ -203,7 +201,7 @@ services:
 
   device:
     build:
-      context: ./vehicles/scooter-demo
+      context: ./vehicles/vehicle-demo
       dockerfile: docker/vehicle/Dockerfile
     container_name: device
     networks:

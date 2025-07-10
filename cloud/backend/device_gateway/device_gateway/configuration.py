@@ -22,9 +22,6 @@ class Configuration:
         "http://172.20.0.10:3000",
         "http://172.20.0.11:3001",
     ]
-    SIM_SERVICE_ENDPOINT = os.environ.get(
-        "SIM_SERVICE_ENDPOINT", "http://localhost:8006"
-    )
     MONGODB_URI = os.environ.get("MONGODB_URI", "mongodb://mongodb:27017")
     DEMO_MODE = os.environ.get("DEMO_MODE", "true") == "true"
 
@@ -37,4 +34,3 @@ class Configuration:
     BATTERY_EVENT_TOPIC = os.getenv(
         "BATTERY_EVENT_TOPIC", "cloud/telemetry/battery_event"
     )
-    SKIP_LOCATION_WRITING = os.environ.get("SKIP_LOCATION_WRITING", "true") == "true"

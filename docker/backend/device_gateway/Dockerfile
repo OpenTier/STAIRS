@@ -14,8 +14,8 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="/root/.local/bin:$PATH"
 
 # Copy only the necessary files first to leverage Docker caching
-COPY cloud/backend/vehicle_gateway/pyproject.toml /app/
-COPY cloud/backend/vehicle_gateway/poetry.lock /app/
+COPY cloud/backend/device_gateway/pyproject.toml /app/
+COPY cloud/backend/device_gateway/poetry.lock /app/
 
 # Copy vehicle API files
 COPY api/ /app/api/
@@ -24,10 +24,10 @@ COPY api/ /app/api/
 RUN poetry lock && poetry install --no-root
 
 # Copy the rest of the application code
-COPY cloud/backend/vehicle_gateway /app
+COPY cloud/backend/device_gateway /app
 
 # Generate API code
-RUN cd /app && python -c "from scripts import generate_proto; generate_proto('/app/api/vehicle-cloud-api/proto', '/app/vehicle_gateway/generated', True)"
+RUN cd /app && python -c "from scripts import generate_proto; generate_proto('/app/api/vehicle-cloud-api/proto', '/app/device_gateway/generated', True)"
 
-# Set the entrypoint command to Vehicle Gateway
-CMD ["poetry", "run", "fastapi", "run", "/app/vehicle_gateway/main.py", "--host", "0.0.0.0", "--port", "8005"]
+# Set the entrypoint command to Device Gateway
+CMD ["poetry", "run", "fastapi", "run", "/app/device_gateway/main.py", "--host", "0.0.0.0", "--port", "8005"]

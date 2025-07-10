@@ -1,6 +1,6 @@
 import zenoh
 import logging
-from vehicle_gateway.generated.vehicle_cloud_events_pb2 import (
+from device_gateway.generated.vehicle_cloud_events_pb2 import (
     SpeedEvent,
     ExteriorEvent,
     CurrentLocationEvent,
@@ -9,9 +9,9 @@ from vehicle_gateway.generated.vehicle_cloud_events_pb2 import (
     TripDataEvent,
     BatteryEvent,
 )
-from vehicle_gateway.db.vehicle_repository import VehicleRepository
-from vehicle_gateway.db.influx_writer import InfluxWriter
-from vehicle_gateway.configuration import Configuration
+from device_gateway.db.vehicle_repository import VehicleRepository
+from device_gateway.db.influx_writer import InfluxWriter
+from device_gateway.configuration import Configuration
 
 
 class VehicleStateSubscriber:

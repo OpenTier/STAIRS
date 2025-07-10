@@ -1,4 +1,4 @@
-from vehicle_gateway.generated import vehicle_msgs_pb2
+from device_gateway.generated import vehicle_msgs_pb2
 
 
 def create_vehicle_data():

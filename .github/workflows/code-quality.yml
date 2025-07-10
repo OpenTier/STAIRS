@@ -13,7 +13,7 @@ jobs:
       matrix:
         service:
           [
-            { name: "Vehicle Gateway", path: "cloud/backend/vehicle_gateway" },
+            { name: "Device Gateway", path: "cloud/backend/device_gateway" },
           ]
     steps:
       - name: Checkout code

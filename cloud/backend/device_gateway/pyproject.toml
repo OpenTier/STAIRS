@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "vehicle-gateway"
+name = "device-gateway"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
@@ -35,7 +35,7 @@ exclude = '''
 /(
     venv
     | __pycache__
-    | vehicle_gateway/generated
+    | device_gateway/generated
 )/
 '''
 

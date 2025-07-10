@@ -5,16 +5,16 @@ import os
 
 
 def format_code():
-    subprocess.run(["black", "vehicle_gateway/"])
+    subprocess.run(["black", "device_gateway/"])
 
 
 def lint_code():
-    subprocess.run(["flake8", "vehicle_gateway/"])
+    subprocess.run(["flake8", "device_gateway/"])
 
 
 def generate_proto(
     proto_path: str = "../../../api/vehicle-cloud-api/proto",
-    proto_out="./vehicle_gateway/generated",
+    proto_out="./device_gateway/generated",
     fix_imports=True,
 ):
     print("Generating proto...")
@@ -64,7 +64,7 @@ def generate_proto(
             for imp in imports_to_fix:
                 if imp in content:
                     content = content.replace(
-                        imp, f"from vehicle_gateway.generated {imp}"
+                        imp, f"from device_gateway.generated {imp}"
                     )
 
             with open(generated_file, "w") as f:
@@ -76,10 +76,10 @@ def generate_proto(
 def run_dev():
     print("Running development server...")
     generate_proto()
-    subprocess.run(["fastapi", "dev", "--port", "8005", "vehicle_gateway/main.py"])
+    subprocess.run(["fastapi", "dev", "--port", "8005", "device_gateway/main.py"])
 
 
 def run_prod():
     print("Running production server...")
     generate_proto()
-    subprocess.run(["fastapi", "run", "--port", "8005", "vehicle_gateway/main.py"])
+    subprocess.run(["fastapi", "run", "--port", "8005", "device_gateway/main.py"])

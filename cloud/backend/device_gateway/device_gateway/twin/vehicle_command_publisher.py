@@ -1,5 +1,5 @@
 import zenoh
-import vehicle_gateway.generated.vehicle_commands_pb2 as vehicle_commands_pb2
+import device_gateway.generated.vehicle_commands_pb2 as vehicle_commands_pb2
 import logging
 from enum import Enum
 from fastapi import HTTPException

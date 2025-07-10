@@ -1,6 +1,5 @@
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
-from vehicle_gateway.configuration import Configuration
 
 
 class InfluxWriter:
@@ -32,17 +31,16 @@ class InfluxWriter:
         self._do_write(point)
 
     def write_location_data(self, data, entity_id: int):
-        if Configuration.SKIP_LOCATION_WRITING is False:
-            point = (
-                Point("location")
-                .tag("device_id", entity_id)
-                .field("altitude", data.altitude)
-                .field("latitude", data.latitude)
-                .field("longitude", data.longitude)
-                .field("timestamp", data.timestamp)
-            )
+        point = (
+            Point("location")
+            .tag("device_id", entity_id)
+            .field("altitude", data.altitude)
+            .field("latitude", data.latitude)
+            .field("longitude", data.longitude)
+            .field("timestamp", data.timestamp)
+        )
 
-            self._do_write(point)
+        self._do_write(point)
 
     def write_speed_data(self, data, entity_id: int):
         point = Point("speed").tag("device_id", entity_id).field("speed", data.speed)

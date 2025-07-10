@@ -34,7 +34,12 @@ git clone https://github.com/OpenTier/STAIRS.git
 cd STAIRS
 ```
 
-2. Compose the platform:
+2. Initialize and update the git submodules:
+```sh
+git submodule update --init --recursive
+```
+
+3. Compose the platform:
 - Option 1 (recommended): with [observability stack](./monitoring/README.md) and [REST APIs](./cloud/backend/stairs_api/README.md) integration:
 ```sh
 docker compose -f docker-compose.yaml -f docker-compose.observability.yaml up -d

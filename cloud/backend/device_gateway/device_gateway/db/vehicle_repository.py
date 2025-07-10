@@ -1,8 +1,8 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 from typing import Optional, List
-from vehicle_gateway.twin.vehicle_state import VehicleState, VehicleType
-from vehicle_gateway.twin.robot_state import RobotState
+from device_gateway.twin.vehicle_state import VehicleState, VehicleType
+from device_gateway.twin.robot_state import RobotState
 import logging
 
 
