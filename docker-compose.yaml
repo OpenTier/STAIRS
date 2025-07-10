@@ -200,7 +200,7 @@ services:
 
   device:
     build:
-      context: ./vehicles/scooter-demo
+      context: ./vehicles/vehicle-demo
       dockerfile: docker/vehicle/Dockerfile
     container_name: device
     networks:
