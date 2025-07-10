@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package intra.speed;
-
-message Speed {
-    float value = 1;
-}

@@ -80,8 +80,6 @@ x-mongodb-init-env: &mongodb-init-env
 x-device-env: &device-env
   <<: *rust-log
   DISPLAY: ":1"
-  SLINT_BACKEND: "Qt"
-  # TODO: remove
 
 services:
   # Backend Services
@@ -201,7 +199,7 @@ services:
 
   device:
     build:
-      context: ./vehicles/vehicle-demo
+      context: ./devices/vehicle-demo
       dockerfile: docker/vehicle/Dockerfile
     container_name: device
     networks:
