@@ -8,17 +8,17 @@ This is a guide on how to use or extend STAIRS
 
 Note: see (Security) section in [STAIRS API README](../cloud/backend/stairs_api/README.md) for authentication.
 
-## Update the device-cloud data
+## Update the device-cloud messages
 1. Update the data in [api](../api/). This is directly reflected in the `device` and the `device_gateway`:
     - vehicle_cloud_events.proto
     - vehicle_commands.proto
     - vehicle_msgs.proto
 2. Update the following accordingly in `device`:
-    - [device proto](../devices/scooter-demo/proto/)
-    - [topics](../devices/scooter-demo/vehicle/common/src/topics.rs)
-    - [signal mocker](../devices/scooter-demo/vehicle/signal_mocker_service/)
-    - [twin service](../devices/scooter-demo/vehicle/twin_service/)
-    - [vehicle messages](../devices/scooter-demo/vehicle/vehicle_msgs/)
+    - [device proto](../devices/vehicle-demo/proto/)
+    - [topics](../devices/vehicle-demo/vehicle/common/src/topics.rs)
+    - [signal mocker](../devices/vehicle-demo/vehicle/signal_mocker_service/)
+    - [twin service](../devices/vehicle-demo/vehicle/twin_service/)
+    - [vehicle messages](../devices/vehicle-demo/vehicle/vehicle_msgs/)
     - Attach the updated api
 3. Update the following accordingly in `device_gateway`:
     - [zenoh-topics](../docker-compose.yaml)
