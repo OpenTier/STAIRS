@@ -16,8 +16,6 @@ from device_gateway.configuration import Configuration
 from device_gateway.db.influx_writer import InfluxWriter
 from device_gateway.db.vehicle_repository import VehicleRepository
 from device_gateway.twin.create_vehicle_data import create_vehicle_data
-import httpx
-from fastapi import HTTPException
 from typing import Optional
 
 
@@ -149,9 +147,7 @@ class TwinService:
     async def list_vehicles(self):
         return await self._vehicle_repository.list_all_vehicle_ids_async()
 
-    async def provision_vehicle(
-        self, entity_id: int, vin: str
-    ) -> bool:
+    async def provision_vehicle(self, entity_id: int, vin: str) -> bool:
         # Check if the vehicle already exists in the repository
         vehicle_state = await self._vehicle_repository.find_vehicle_by_entity_id_async(
             entity_id
