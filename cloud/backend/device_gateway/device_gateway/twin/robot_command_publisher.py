@@ -3,7 +3,7 @@ import logging
 from fastapi import HTTPException
 from google.protobuf.message import Message
 from typing import Dict
-from vehicle_gateway.generated import robot_soccer_pb2
+from device_gateway.generated import robot_soccer_pb2
 
 
 class RobotCommandPublisher:

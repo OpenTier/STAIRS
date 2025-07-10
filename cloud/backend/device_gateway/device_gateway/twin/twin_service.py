@@ -1,21 +1,21 @@
-from vehicle_gateway.twin.vehicle_state import VehicleState, VehicleType
-from vehicle_gateway.twin.vehicle_state_subscriber import VehicleStateSubscriber
-from vehicle_gateway.twin.robot_state_subscriber import RobotStateSubscriber
-from vehicle_gateway.twin.vehicle_command_publisher import (
+from device_gateway.twin.vehicle_state import VehicleState, VehicleType
+from device_gateway.twin.vehicle_state_subscriber import VehicleStateSubscriber
+from device_gateway.twin.robot_state_subscriber import RobotStateSubscriber
+from device_gateway.twin.vehicle_command_publisher import (
     VehicleCommandPublisher,
     LockState,
     CommandState,
     CommandTarget,
 )
-from vehicle_gateway.twin.robot_command_publisher import RobotCommandPublisher
-from vehicle_gateway.twin.robot_state import RobotState
+from device_gateway.twin.robot_command_publisher import RobotCommandPublisher
+from device_gateway.twin.robot_state import RobotState
 import zenoh
 import logging
 import json
-from vehicle_gateway.configuration import Configuration
-from vehicle_gateway.db.influx_writer import InfluxWriter
-from vehicle_gateway.db.vehicle_repository import VehicleRepository
-from vehicle_gateway.twin.create_vehicle_data import create_vehicle_data
+from device_gateway.configuration import Configuration
+from device_gateway.db.influx_writer import InfluxWriter
+from device_gateway.db.vehicle_repository import VehicleRepository
+from device_gateway.twin.create_vehicle_data import create_vehicle_data
 import httpx
 from fastapi import HTTPException
 from typing import Optional
@@ -79,11 +79,6 @@ class TwinService:
                 self._command_publisher.create_turn_on_off_publisher(
                     self._session, vehicle_id
                 )
-            elif (
-                vehicle_state.type == VehicleType.SCOOTER
-                and not vehicle_state.is_real()
-            ):
-                self._logger.info("Skipping adding a simulated scooter.")
             else:
                 self._logger.error(
                     f"Unknown or unsupported vehicle type: {vehicle_state.type}"
@@ -155,7 +150,7 @@ class TwinService:
         return await self._vehicle_repository.list_all_vehicle_ids_async()
 
     async def provision_vehicle(
-        self, entity_id: int, simulated: bool, vin: str
+        self, entity_id: int, vin: str
     ) -> bool:
         # Check if the vehicle already exists in the repository
         vehicle_state = await self._vehicle_repository.find_vehicle_by_entity_id_async(
@@ -167,89 +162,12 @@ class TwinService:
             # Assuming this is an invalid case for now
             return False
 
-        if simulated:
-            return await self._spawn_simulated_vehicle(entity_id)
-        else:
-            self._vehicle_repository.add_vehicle(
-                VehicleState(vin, entity_id, True, create_vehicle_data())
-            )
-            self._command_publisher.create_lock_publisher(self._session, vin)
-            self._command_publisher.create_turn_on_off_publisher(self._session, vin)
-            return True
-
-    async def _spawn_simulated_vehicle(self, entity_id: str) -> Optional[int]:
-        async with httpx.AsyncClient() as client:
-            try:
-                response = await client.post(
-                    url=f"{Configuration.SIM_SERVICE_ENDPOINT}/api/v1/vehicles",
-                )
-                response.raise_for_status()
-
-                # Extract vehicle ID from the response
-                response_data = response.json()
-                self._logger.info(f"Response: {response_data}")
-                vehicle_id = response_data.get("vehicle_id")
-                if not vehicle_id:
-                    self._logger.error("Missing 'vehicle_id' in the response")
-                    return False
-
-                self._logger.info(f"Vehicle spawned: {entity_id} -> {vehicle_id}")
-                # Create vehicle data
-                vehicle_data = create_vehicle_data()
-
-                # Create a new vehicle state and add it to the repository
-                vehicle_state = VehicleState(vehicle_id, entity_id, False, vehicle_data)
-                self._logger.info(f"Vehicle state created: {vehicle_state}")
-                await self._vehicle_repository.add_vehicle_async(vehicle_state)
-                self._logger.info(f"Vehicle added to repository: {vehicle_state}")
-
-                self._logger.info(f"Vehicle provisioned: {entity_id} -> {vehicle_id}")
-
-                # Create command publishers for the vehicle
-                self._command_publisher.create_lock_publisher(self._session, vehicle_id)
-                self._command_publisher.create_turn_on_off_publisher(
-                    self._session, vehicle_id
-                )
-
-                self._logger.info(
-                    f"Command publishers created for vehicle: {vehicle_id}"
-                )
-
-                return True
-
-            except httpx.RequestError as e:
-                self._logger.error(
-                    f"Network request error while provisioning vehicle "
-                    f"{entity_id}: {str(e)}"
-                )
-                raise HTTPException(
-                    status_code=500, detail=f"Network request error: {str(e)}"
-                )
-
-            except httpx.HTTPStatusError as e:
-                self._logger.error(
-                    f"HTTP error while provisioning vehicle {entity_id}: "
-                    f"Status {e.response.status_code}, Detail: {e.response.text}"
-                )
-                raise HTTPException(
-                    status_code=e.response.status_code,
-                    detail=f"HTTP error: {e.response.text}",
-                )
-
-            except KeyError as e:
-                self._logger.error(f"Unexpected response format: Missing key {str(e)}")
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Unexpected response format: Missing key {str(e)}",
-                )
-
-            except Exception as e:
-                self._logger.error(
-                    f"Unexpected error while provisioning vehicle {entity_id}: {str(e)}"
-                )
-                raise HTTPException(
-                    status_code=500, detail=f"Unexpected error: {str(e)}"
-                )
+        self._vehicle_repository.add_vehicle(
+            VehicleState(vin, entity_id, True, create_vehicle_data())
+        )
+        self._command_publisher.create_lock_publisher(self._session, vin)
+        self._command_publisher.create_turn_on_off_publisher(self._session, vin)
+        return True
 
     async def get_robot_state(self, robot_id: str) -> Optional[RobotState]:
         """Get robot state by robot_id"""

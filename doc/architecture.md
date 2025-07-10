@@ -27,7 +27,7 @@ This document outlines the architecture and main components of the STAIRS platfo
 * Handles:
     - Communication with IoT devices using various protocols, ensuring secure and reliable connections. Responsible for protocol translation, device authentication, and message routing.
     - Data ingestion in the `Telemetry DB`.
-* We developed this [Device Gateway](../cloud/backend/) service.
+* We developed this [Device Gateway](../cloud/backend/device_gateway) service.
 
 ### Telemetry DB
 * Stores the measurements / metrics / data send by the devices authenticated and monitored by the `Device Gateway`.

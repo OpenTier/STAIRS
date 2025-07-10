@@ -1,5 +1,5 @@
-from vehicle_gateway.twin.vehicle_state import VehicleState, VehicleType
-from vehicle_gateway.generated import vehicle_msgs_pb2, robot_soccer_pb2
+from device_gateway.twin.vehicle_state import VehicleState, VehicleType
+from device_gateway.generated import vehicle_msgs_pb2, robot_soccer_pb2
 from typing import Optional
 import logging
 

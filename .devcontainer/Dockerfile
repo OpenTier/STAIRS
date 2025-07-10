@@ -56,7 +56,7 @@ RUN apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash - && \
     apt-get install -y nodejs
 
-# Install Python 3.8 for Carla simulator
+# Install Python 3.8
 RUN DEBIAN_FRONTEND=noninteractive  apt-get update && apt-get install -y \
     software-properties-common \
     && add-apt-repository ppa:deadsnakes/ppa \

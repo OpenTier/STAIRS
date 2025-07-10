@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from vehicle_gateway.twin.twin_service import TwinService
+from device_gateway.twin.twin_service import TwinService
 from pydantic import BaseModel
 import logging
 
@@ -25,9 +25,8 @@ async def provision_vehicle(request: VehicleProvisionRequest):
     vin = request.vin
 
     try:
-        simulated = False
         # Call the provision_vehicle function from TwinService
-        vehicle_id = await twin_service.provision_vehicle(entity_id, simulated, vin)
+        vehicle_id = await twin_service.provision_vehicle(entity_id, vin)
 
         # Handle the response and provide feedback
         if vehicle_id:

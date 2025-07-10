@@ -1,8 +1,8 @@
 import zenoh
 import logging
-from vehicle_gateway.db.vehicle_repository import VehicleRepository
-from vehicle_gateway.generated import robot_soccer_pb2
-from vehicle_gateway.twin.robot_state import RobotState
+from device_gateway.db.vehicle_repository import VehicleRepository
+from device_gateway.generated import robot_soccer_pb2
+from device_gateway.twin.robot_state import RobotState
 
 
 class RobotStateSubscriber:

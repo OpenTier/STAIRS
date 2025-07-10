@@ -1,6 +1,6 @@
-from vehicle_gateway.generated import vehicle_msgs_pb2
+from device_gateway.generated import vehicle_msgs_pb2
 from google.protobuf.json_format import MessageToJson, Parse
-from vehicle_gateway.twin.create_vehicle_data import create_vehicle_data
+from device_gateway.twin.create_vehicle_data import create_vehicle_data
 from typing import Optional
 from enum import Enum
 
@@ -42,9 +42,6 @@ class VehicleState:
 
     def is_real(self) -> bool:
         return self.real
-
-    def is_simulated(self) -> bool:
-        return not self.real
 
     @staticmethod
     def from_dict(data: dict) -> "VehicleState":
