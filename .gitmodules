@@ -1,9 +1,7 @@
-[submodule "vehicles/scooter-demo"]
-	path = vehicles/scooter-demo
-	url = https://github.com/OpenTier/scooter-demo.git
 [submodule "api/vehicle-cloud-api"]
 	path = api/vehicle-cloud-api
 	url = https://github.com/OpenTier/vehicle-cloud-api.git
-[submodule "vehicles/vehicle-demo"]
-	path = vehicles/vehicle-demo
-	url = git@github.com:OpenTier/vehicle-demo.git
+[submodule "devices/vehicle-demo"]
+	path = devices/vehicle-demo
+	url = https://github.com/OpenTier/vehicle-demo.git
+	branch = main
