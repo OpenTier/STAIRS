@@ -17,17 +17,29 @@ jobs:
 
       - name: Start required backend services for API tests
         run: |
-          # List of backend services required for API tests
-          SERVICES=("stairs_api" "device_gateway" "cloud_router")
-
-          for service in "${SERVICES[@]}"; do
-            echo "Starting $service..."
-            if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml up -d --build "$service"; then
-              echo "::error::Failed to start $service"
-              exit 1
-            fi
-            echo "$service started successfully"
-          done
+          # Start services in dependency order: cloud_router -> device_gateway -> stairs_api
+          # This ensures dependencies are available when each service starts
+          
+          echo "Starting cloud_router..."
+          if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml up -d --build cloud_router; then
+            echo "::error::Failed to start cloud_router"
+            exit 1
+          fi
+          echo "cloud_router started successfully"
+          
+          echo "Starting device_gateway..."
+          if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml up -d --build device_gateway; then
+            echo "::error::Failed to start device_gateway"
+            exit 1
+          fi
+          echo "device_gateway started successfully"
+          
+          echo "Starting stairs_api..."
+          if ! docker compose -f docker-compose.yaml -f docker-compose.test.yaml up -d --build stairs_api; then
+            echo "::error::Failed to start stairs_api"
+            exit 1
+          fi
+          echo "stairs_api started successfully"
 
       - name: Run API tests
         run: |
