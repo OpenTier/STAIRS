@@ -1,3 +1,8 @@
+# Security Disclaimer
+# Note: For simplicity and ease of setup, database credentials and other secrets are stored directly in the `docker-compose.yml` file.
+# In a production environment, this is not a secure practice.
+# Secrets such as database credentials, API keys, and access tokens should be managed using secure methods
+
 services:
   # Monitoring Services
   # 1. Prometheus

@@ -60,3 +60,15 @@ Once the platform is up:
 - [Roadmap](doc/roadmap.md)
 - [Contribution guidelines](CONTRIBUTING.md)
 - [License file](LICENSE.md)
+
+## ⚠️ Security Disclaimer
+Note: For simplicity and ease of setup, database credentials and other secrets are stored directly in the `docker-compose.yml` file.
+
+In a production environment, this is not a secure practice.
+Secrets such as database credentials, API keys, and access tokens should be managed using secure methods like:
+- Environment variables managed outside version control
+- Docker secrets
+- Secret management tools (e.g., HashiCorp Vault, AWS Secrets Manager, etc.)
+
+Always follow security best practices when deploying to staging or production environments.
+

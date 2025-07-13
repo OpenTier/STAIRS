@@ -251,7 +251,7 @@
           "refId": "A"
         }
       ],
-      "title": "Battery Level",
+      "title": "Battery Charge (%)",
       "type": "gauge"
     },
     {
@@ -449,7 +449,7 @@
           "refId": "A"
         }
       ],
-      "title": "Front Tire Pressure",
+      "title": "Pressure (psi)",
       "type": "gauge"
     },
     {
@@ -515,7 +515,7 @@
           "refId": "A"
         }
       ],
-      "title": "Speed",
+      "title": "Speed (km/h)",
       "type": "gauge"
     },
     {
@@ -580,7 +580,7 @@
           "refId": "A"
         }
       ],
-      "title": "Engine Temperature (Celsius)",
+      "title": "Temperature (Celsius)",
       "type": "gauge"
     },
     {
@@ -673,7 +673,7 @@
           "refId": "A"
         }
       ],
-      "title": "Engine Temperature (Celsius)",
+      "title": "Temperature (Celsius)",
       "type": "timeseries"
     },
     {
@@ -962,7 +962,7 @@
           "refId": "A"
         }
       ],
-      "title": "Tires Pressure (psi)",
+      "title": "Pressure (psi)",
       "type": "timeseries"
     }
   ],
