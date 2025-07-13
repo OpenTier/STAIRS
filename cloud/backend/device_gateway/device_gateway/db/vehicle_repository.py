@@ -1,8 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 from typing import Optional, List
-from device_gateway.twin.vehicle_state import VehicleState, DeviceType
-from device_gateway.twin.robot_state import RobotState
+from device_gateway.twin.vehicle_state import VehicleState
 import logging
 
 
@@ -33,14 +32,7 @@ class VehicleRepository:
             {"vehicle_id": vehicle_id}
         )
         if vehicle_data:
-            if vehicle_data.get("type") == DeviceType.ROBOT.value:
-                vehicle_state = RobotState(
-                    vehicle_id,
-                    vehicle_data["entity_id"],
-                    VehicleState.from_dict(vehicle_data).state,
-                )
-            else:
-                vehicle_state = VehicleState.from_dict(vehicle_data)
+            vehicle_state = VehicleState.from_dict(vehicle_data)
 
             # Cache the result
             self._vehicle_cache[vehicle_id] = vehicle_state
@@ -57,14 +49,7 @@ class VehicleRepository:
             {"entity_id": entity_id}
         )
         if vehicle_data:
-            if vehicle_data.get("type") == DeviceType.ROBOT.value:
-                vehicle_state = RobotState(
-                    vehicle_data["vehicle_id"],
-                    entity_id,
-                    VehicleState.from_dict(vehicle_data).state,
-                )
-            else:
-                vehicle_state = VehicleState.from_dict(vehicle_data)
+            vehicle_state = VehicleState.from_dict(vehicle_data)
 
             # Cache the result
             self._vehicle_cache[vehicle_state.vehicle_id] = vehicle_state
@@ -86,8 +71,6 @@ class VehicleRepository:
 
         # Serialize VehicleState to dictionary and save to MongoDB
         vehicle_dict = vehicle.to_dict()
-        if vehicle.type == DeviceType.ROBOT.value:
-            vehicle_dict["robot"] = True
         await self.async_database.vehicles.update_one(
             {"vehicle_id": vehicle.vehicle_id}, {"$set": vehicle_dict}, upsert=True
         )
@@ -115,14 +98,7 @@ class VehicleRepository:
         # Fetch from MongoDB if not in cache
         vehicle_data = self.sync_database.vehicles.find_one({"vehicle_id": vehicle_id})
         if vehicle_data:
-            if vehicle_data.get("type") == DeviceType.ROBOT.value:
-                vehicle_state = RobotState(
-                    vehicle_id,
-                    vehicle_data["entity_id"],
-                    VehicleState.from_dict(vehicle_data).state,
-                )
-            else:
-                vehicle_state = VehicleState.from_dict(vehicle_data)
+            vehicle_state = VehicleState.from_dict(vehicle_data)
             # Cache the result
             self._vehicle_cache[vehicle_id] = vehicle_state
             return vehicle_state
@@ -134,14 +110,7 @@ class VehicleRepository:
         # Fetch from MongoDB by entity_id
         vehicle_data = self.sync_database.vehicles.find_one({"entity_id": entity_id})
         if vehicle_data:
-            if vehicle_data.get("type") == DeviceType.ROBOT.value:
-                vehicle_state = RobotState(
-                    vehicle_data["vehicle_id"],
-                    entity_id,
-                    VehicleState.from_dict(vehicle_data).state,
-                )
-            else:
-                vehicle_state = VehicleState.from_dict(vehicle_data)
+            vehicle_state = VehicleState.from_dict(vehicle_data)
             # Cache the result
             self._vehicle_cache[vehicle_state.vehicle_id] = vehicle_state
             return vehicle_state

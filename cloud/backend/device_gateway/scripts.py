@@ -23,7 +23,6 @@ def generate_proto(
         "vehicle_cloud_events.proto",
         "vehicle_commands.proto",
         "vehicle_msgs.proto",
-        "robot_soccer.proto",
     ]
 
     # ensure that the generated directory exists
@@ -43,7 +42,6 @@ def generate_proto(
     if fix_imports:
         # Fix imports in generated files
         for generated_file in [
-            f"{proto_out}/robot_soccer_pb2.py",
             f"{proto_out}/vehicle_cloud_events_pb2.py",
             f"{proto_out}/vehicle_commands_pb2.py",
             f"{proto_out}/vehicle_msgs_pb2.py",
@@ -58,7 +56,6 @@ def generate_proto(
                 "import vehicle_cloud_events_pb2",
                 "import vehicle_commands_pb2",
                 "import vehicle_msgs_pb2",
-                "import robot_soccer_pb2",
             ]
 
             for imp in imports_to_fix:

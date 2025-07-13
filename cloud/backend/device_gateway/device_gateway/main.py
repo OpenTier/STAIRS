@@ -3,7 +3,6 @@ from device_gateway.configuration import Configuration
 from starlette.middleware.cors import CORSMiddleware
 from device_gateway.api.devices import router as device_router
 from device_gateway.api.devices import twin_service
-from device_gateway.api.robots import router as robot_router
 from device_gateway.api.health import router as health_router
 import logging
 from contextlib import asynccontextmanager
@@ -39,5 +38,4 @@ app.add_middleware(
 )
 
 app.include_router(device_router, tags=["devices"])
-app.include_router(robot_router, tags=["robots"])
 app.include_router(health_router, tags=["health"])

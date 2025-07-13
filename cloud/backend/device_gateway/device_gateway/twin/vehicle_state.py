@@ -2,12 +2,6 @@ from device_gateway.generated import vehicle_msgs_pb2
 from google.protobuf.json_format import MessageToJson, Parse
 from device_gateway.twin.create_vehicle_data import create_vehicle_data
 from typing import Optional
-from enum import Enum
-
-
-class DeviceType(Enum):
-    VEHICLE = "vehicle"
-    ROBOT = "robot"
 
 
 class VehicleState:
@@ -16,11 +10,9 @@ class VehicleState:
         vehicle_id: str,
         entity_id: int,
         state: Optional["vehicle_msgs_pb2.Vehicle"],
-        type: DeviceType = DeviceType.VEHICLE,
     ) -> None:
         self.vehicle_id = vehicle_id
         self.entity_id = entity_id
-        self.type = type
 
         if state is None:
             self.state = create_vehicle_data()
@@ -33,7 +25,6 @@ class VehicleState:
             "vehicle_id": self.vehicle_id,
             "entity_id": self.entity_id,
             "state": MessageToJson(self.state),
-            "type": self.type.value,
         }
 
     @staticmethod
@@ -45,7 +36,6 @@ class VehicleState:
             vehicle_id=data["vehicle_id"],
             entity_id=data.get("entity_id"),
             state=state,
-            type=DeviceType(data.get("type")),
         )
 
     def update_battery_data(self, data):

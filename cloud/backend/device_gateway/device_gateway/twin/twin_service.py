@@ -1,14 +1,11 @@
-from device_gateway.twin.vehicle_state import VehicleState, DeviceType
+from device_gateway.twin.vehicle_state import VehicleState
 from device_gateway.twin.vehicle_state_subscriber import VehicleStateSubscriber
-from device_gateway.twin.robot_state_subscriber import RobotStateSubscriber
 from device_gateway.twin.vehicle_command_publisher import (
     VehicleCommandPublisher,
     LockState,
     CommandState,
     CommandTarget,
 )
-from device_gateway.twin.robot_command_publisher import RobotCommandPublisher
-from device_gateway.twin.robot_state import RobotState
 import zenoh
 import logging
 import json
@@ -16,7 +13,6 @@ from device_gateway.configuration import Configuration
 from device_gateway.db.influx_writer import InfluxWriter
 from device_gateway.db.vehicle_repository import VehicleRepository
 from device_gateway.twin.create_vehicle_data import create_vehicle_data
-from typing import Optional
 
 
 class TwinService:
@@ -25,9 +21,7 @@ class TwinService:
         self._logger = logging.getLogger(__name__)
         self._vehicle_repository: VehicleRepository = None
         self._command_publisher: VehicleCommandPublisher = None
-        self._robot_command_publisher: RobotCommandPublisher = None
         self._vehicle_subscriber: VehicleStateSubscriber = None
-        self._robot_subscriber: RobotStateSubscriber = None
 
     async def start(self):
         self._logger.info("Starting TwinService...")
@@ -50,37 +44,19 @@ class TwinService:
         self._vehicle_subscriber = VehicleStateSubscriber(
             self._session, self._vehicle_repository, self._influx_writer
         )
-        self._robot_subscriber = RobotStateSubscriber(
-            self._session, self._vehicle_repository
-        )
 
         # Initialize publishers
         self._command_publisher = VehicleCommandPublisher(self._session)
-        self._robot_command_publisher = RobotCommandPublisher(self._session)
 
-        self._logger.info("Initializing vehicle and robot connections...")
+        self._logger.info("Initializing vehicle connections...")
 
         ids = await self._vehicle_repository.list_all_vehicle_ids_async()
         for vehicle_id in ids:
-            vehicle_state = (
-                await self._vehicle_repository.find_vehicle_by_vehicle_id_async(
-                    vehicle_id
-                )
+            self._logger.info(f"Creating publishers for vehicle: {vehicle_id}")
+            self._command_publisher.create_lock_publisher(self._session, vehicle_id)
+            self._command_publisher.create_turn_on_off_publisher(
+                self._session, vehicle_id
             )
-
-            if vehicle_state.type == DeviceType.ROBOT:
-                self._logger.info(f"Creating publishers for robot: {vehicle_id}")
-                self._robot_command_publisher.create_publisher(vehicle_id)
-            elif vehicle_state.type == DeviceType.VEHICLE:
-                self._logger.info(f"Creating publishers for vehicle: {vehicle_id}")
-                self._command_publisher.create_lock_publisher(self._session, vehicle_id)
-                self._command_publisher.create_turn_on_off_publisher(
-                    self._session, vehicle_id
-                )
-            else:
-                self._logger.error(
-                    f"Unknown or unsupported vehicle type: {vehicle_state.type}"
-                )
 
         self._logger.info("TwinService started successfully")
 
@@ -163,120 +139,4 @@ class TwinService:
         )
         self._command_publisher.create_lock_publisher(self._session, vin)
         self._command_publisher.create_turn_on_off_publisher(self._session, vin)
-        return True
-
-    async def get_robot_state(self, robot_id: str) -> Optional[RobotState]:
-        """Get robot state by robot_id"""
-        return await self._vehicle_repository.find_vehicle_by_vehicle_id_async(robot_id)
-
-    async def provision_robot(self, robot_id: str) -> bool:
-        """Provision a new robot"""
-        # Check if robot already exists
-        robot_state = await self._vehicle_repository.find_vehicle_by_vehicle_id_async(
-            robot_id
-        )
-        if robot_state:
-            self._logger.info(f"Robot already exists: {robot_id}")
-            return False
-
-        vehicle_data = create_vehicle_data()
-        robot_state = RobotState(robot_id, robot_id, vehicle_data)
-        await self._vehicle_repository.add_vehicle_async(robot_state)
-
-        self._robot_command_publisher.create_publisher(robot_id)
-        return True
-
-    async def is_valid_robot(self, robot_id: str) -> bool:
-        """Check if a robot exists and is valid
-
-        Returns:
-            True if robot exists and is valid
-            False otherwise
-        """
-        robot_state = await self._vehicle_repository.find_vehicle_by_vehicle_id_async(
-            robot_id
-        )
-
-        if not robot_state:
-            self._logger.warning(f"Robot {robot_id} not found in repository")
-            return False
-
-        if robot_state.type != DeviceType.ROBOT:
-            self._logger.warning(f"Vehicle {robot_id} exists but is not a robot")
-            return False
-
-        return True
-
-    async def robot_kick(self, robot_id: str, power: float) -> bool:
-        """Send kick command to robot"""
-        if not await self.is_valid_robot(robot_id):
-            return False
-
-        robot_state = await self._vehicle_repository.find_vehicle_by_vehicle_id_async(
-            robot_id
-        )
-        if not robot_state.can_kick(power):
-            return False
-
-        self._robot_command_publisher.publish_kick_command(robot_id, power)
-        return True
-
-    async def robot_control(
-        self, robot_id: str, dx: float, dy: float, dturn: float
-    ) -> bool:
-        """Send movement control command to robot"""
-        if not await self.is_valid_robot(robot_id):
-            return False
-
-        robot_state = await self._vehicle_repository.find_vehicle_by_vehicle_id_async(
-            robot_id
-        )
-        if not robot_state.can_move(dx, dy, dturn):
-            return False
-
-        self._robot_command_publisher.publish_control_command(robot_id, dx, dy, dturn)
-        return True
-
-    async def robot_leds(self, robot_id: str, red: int, green: int, blue: int) -> bool:
-        """Send LED control command to robot"""
-        if not await self.is_valid_robot(robot_id):
-            return False
-
-        robot_state = await self._vehicle_repository.find_vehicle_by_vehicle_id_async(
-            robot_id
-        )
-        if not robot_state.can_control_leds(red, green, blue):
-            return False
-
-        self._robot_command_publisher.publish_leds_command(robot_id, red, green, blue)
-        return True
-
-    async def robot_beep(self, robot_id: str, frequency: int, duration: int) -> bool:
-        """Send beep command to robot"""
-        if not await self.is_valid_robot(robot_id):
-            return False
-
-        robot_state = await self._vehicle_repository.find_vehicle_by_vehicle_id_async(
-            robot_id
-        )
-        if not robot_state.can_beep(frequency, duration):
-            return False
-
-        self._robot_command_publisher.publish_beep_command(
-            robot_id, frequency, duration
-        )
-
-        return True
-
-    async def unprovision_robot(self, robot_id: str) -> bool:
-        """Unprovision/delete a robot"""
-        if not await self.is_valid_robot(robot_id):
-            return False
-
-        await self._vehicle_repository.remove_vehicle_async(robot_id)
-
-        # Remove the publisher if it exists
-        if hasattr(self, "_robot_command_publisher") and self._robot_command_publisher:
-            self._robot_command_publisher.remove_publisher(robot_id)
-
         return True
