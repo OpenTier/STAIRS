@@ -3,8 +3,7 @@
 This service is responsible for communication between devices and STAIRS. Currently provided features:
 1. Keeping track of active vehicles (inside a DB).
 2. Communication with the vehicles and data ingestion of telemtry data into a time-series DB.
-3. Managing the Digital Twin on the backend, synchronizing data between the physical vehicle and its virtual counterpart.
-4. Providing internal REST APIs to STAIRS API layer to manage user commands or queries.
+3. Providing internal REST APIs to STAIRS API layer to manage user commands or queries.
 ## Handling Different Devices
 The service is designed to be a generic device gateway to handle different device types. It currently supports handling [vehicles](https://github.com/OpenTier/vehicle-demo) as a main use-case.
 ## Device-Cloud Messages

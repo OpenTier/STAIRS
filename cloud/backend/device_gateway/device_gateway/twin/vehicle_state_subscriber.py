@@ -46,7 +46,6 @@ class VehicleStateSubscriber:
         vehicle_state = self._repository.find_vehicle_by_vehicle_id(data.vehicle_id)
         if vehicle_state is not None:
             self._logger.debug("[on_battery_data] New message received")
-            vehicle_state.update_battery_data(data)
             self._repository.add_vehicle(vehicle_state)  # Update the database
             self._db_writer.write_battery_data(data, vehicle_state.entity_id)
         else:
@@ -61,7 +60,6 @@ class VehicleStateSubscriber:
         vehicle_state = self._repository.find_vehicle_by_vehicle_id(data.vehicle_id)
         if vehicle_state is not None:
             self._logger.debug("[on_location_data] New message received")
-            vehicle_state.update_location_data(data)
             self._repository.add_vehicle(vehicle_state)  # Update the database
             self._db_writer.write_location_data(data, vehicle_state.entity_id)
         else:
@@ -76,7 +74,6 @@ class VehicleStateSubscriber:
         vehicle_state = self._repository.find_vehicle_by_vehicle_id(data.vehicle_id)
         if vehicle_state is not None:
             self._logger.debug("[on_speed_data] New message received")
-            vehicle_state.update_speed_data(data)
             self._repository.add_vehicle(vehicle_state)  # Update the database
             self._db_writer.write_speed_data(data, vehicle_state.entity_id)
         else:
@@ -91,7 +88,6 @@ class VehicleStateSubscriber:
         vehicle_state = self._repository.find_vehicle_by_vehicle_id(data.vehicle_id)
         if vehicle_state is not None:
             self._logger.debug("[on_exterior_data] New message received")
-            vehicle_state.update_exterior_data(data)
             self._repository.add_vehicle(vehicle_state)  # Update the database
             self._db_writer.write_exterior_data(data, vehicle_state.entity_id)
         else:
@@ -106,7 +102,6 @@ class VehicleStateSubscriber:
         vehicle_state = self._repository.find_vehicle_by_vehicle_id(data.vehicle_id)
         if vehicle_state is not None:
             self._logger.debug("[on_trip_data] New message received")
-            vehicle_state.update_trip_data(data)
             self._repository.add_vehicle(vehicle_state)  # Update the database
             self._db_writer.write_trip_data(data, vehicle_state.entity_id)
         else:
@@ -121,7 +116,6 @@ class VehicleStateSubscriber:
         vehicle_state = self._repository.find_vehicle_by_vehicle_id(data.vehicle_id)
         if vehicle_state is not None:
             self._logger.debug("[on_lock_state_data] New message received")
-            vehicle_state.update_lock_state_data(data)
             self._repository.add_vehicle(vehicle_state)  # Update the database
             self._db_writer.write_lock_state_data(data, vehicle_state.entity_id)
 
@@ -141,7 +135,6 @@ class VehicleStateSubscriber:
         vehicle_state = self._repository.find_vehicle_by_vehicle_id(data.vehicle_id)
         if vehicle_state is not None:
             self._logger.debug("[on_tires_data] New message received")
-            vehicle_state.update_tires_data(data)
             self._repository.add_vehicle(vehicle_state)  # Update the database
             self._db_writer.write_tires_data(data, vehicle_state.entity_id)
         else:

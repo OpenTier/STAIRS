@@ -12,7 +12,6 @@ import json
 from device_gateway.configuration import Configuration
 from device_gateway.db.influx_writer import InfluxWriter
 from device_gateway.db.vehicle_repository import VehicleRepository
-from device_gateway.twin.create_vehicle_data import create_vehicle_data
 
 
 class TwinService:
@@ -78,10 +77,6 @@ class TwinService:
             self._logger.info("Vehicle not found")
             return False
 
-        if not vehicle_state.can_lock_unlock(lock):
-            self._logger.info("Vehicle cannot be locked/unlocked")
-            return False
-
         lock_state = LockState.LOCK if lock else LockState.UNLOCK
         self._command_publisher.publish_lock_unlock_command(
             vehicle_state.vehicle_id, lock_state
@@ -95,9 +90,6 @@ class TwinService:
         if not vehicle_state:
             return False
 
-        if not vehicle_state.can_turn_on_off_horn(on):
-            return False
-
         command_state = CommandState.ON if on else CommandState.OFF
         self._command_publisher.publish_turn_on_off_command(
             vehicle_state.vehicle_id, CommandTarget.HORN, command_state
@@ -109,9 +101,6 @@ class TwinService:
             entity_id
         )
         if not vehicle_state:
-            return False
-
-        if not vehicle_state.can_turn_on_off_light(on):
             return False
 
         command_state = CommandState.ON if on else CommandState.OFF
@@ -135,7 +124,7 @@ class TwinService:
             return False
 
         self._vehicle_repository.add_vehicle(
-            VehicleState(vin, entity_id, create_vehicle_data())
+            VehicleState(vin, entity_id)
         )
         self._command_publisher.create_lock_publisher(self._session, vin)
         self._command_publisher.create_turn_on_off_publisher(self._session, vin)

@@ -22,7 +22,6 @@ def generate_proto(
     proto_files = [
         "vehicle_cloud_events.proto",
         "vehicle_commands.proto",
-        "vehicle_msgs.proto",
     ]
 
     # ensure that the generated directory exists
@@ -44,7 +43,6 @@ def generate_proto(
         for generated_file in [
             f"{proto_out}/vehicle_cloud_events_pb2.py",
             f"{proto_out}/vehicle_commands_pb2.py",
-            f"{proto_out}/vehicle_msgs_pb2.py",
         ]:
             if not os.path.exists(generated_file):
                 continue
@@ -55,7 +53,6 @@ def generate_proto(
             imports_to_fix = [
                 "import vehicle_cloud_events_pb2",
                 "import vehicle_commands_pb2",
-                "import vehicle_msgs_pb2",
             ]
 
             for imp in imports_to_fix:

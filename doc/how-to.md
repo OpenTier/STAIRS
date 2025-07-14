@@ -12,7 +12,6 @@ Note: see (Security) section in [API README](../cloud/backend/stairs_api/README.
 1. Update the data in [api](../api/). This is directly reflected in the `device` and the `device_gateway`:
     - vehicle_cloud_events.proto
     - vehicle_commands.proto
-    - vehicle_msgs.proto
 2. Update the following accordingly in `device`:
     - [device proto](../devices/vehicle-demo/proto/)
     - [topics](../devices/vehicle-demo/vehicle/common/src/topics.rs)
