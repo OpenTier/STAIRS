@@ -123,9 +123,7 @@ class TwinService:
             # Assuming this is an invalid case for now
             return False
 
-        self._vehicle_repository.add_vehicle(
-            VehicleState(vin, entity_id)
-        )
+        self._vehicle_repository.add_vehicle(VehicleState(vin, entity_id))
         self._command_publisher.create_lock_publisher(self._session, vin)
         self._command_publisher.create_turn_on_off_publisher(self._session, vin)
         return True
