@@ -2,7 +2,7 @@ services:
   # Override stairs_api to disable authentication for testing
   stairs_api:
     environment:
-      - AUTH_ENABLED=false
+      - AUTH_ENABLED=true
 
   # Unified tests service
   unified_tests:

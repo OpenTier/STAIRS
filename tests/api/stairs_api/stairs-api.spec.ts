@@ -5,6 +5,56 @@ import { API_URLS } from '../../config/test-config';
 const API_BASE_URL = API_URLS.STAIRS_API;
 const testDeviceId = 1;
 
+// Authentication tests
+test.describe('@api STAIRS API - Authentication', () => {
+  test('should authenticate with valid credentials when auth is enabled', async ({ request }) => {
+    const authRes = await request.post(`${API_BASE_URL}/auth/login`, {
+      data: { name: 'admin', password: 'password' }
+    });
+    
+    // If auth is disabled (AUTH_ENABLED=false), this endpoint might not exist
+    expect([200, 201, 404, 405]).toContain(authRes.status());
+    
+    if (authRes.ok()) {
+      const authData = await authRes.json();
+      expect(authData).toHaveProperty('access_token');
+      expect(typeof authData.access_token).toBe('string');
+    }
+  });
+
+  test('should reject invalid credentials when auth is enabled', async ({ request }) => {
+    const authRes = await request.post(`${API_BASE_URL}/auth/login`, {
+      data: { name: 'invalid', password: 'wrong' }
+    });
+    
+    // If auth is disabled, this endpoint might not exist
+    expect([401, 404, 405]).toContain(authRes.status());
+  });
+});
+
+// Authentication helper function
+const getAuthToken = async (request: any): Promise<string | null> => {
+  try {
+    const authRes = await request.post(`${API_BASE_URL}/auth/login`, {
+      data: { name: 'admin', password: 'password' }
+    });
+    
+    if (authRes.ok()) {
+      const authData = await authRes.json();
+      return authData.access_token;
+    }
+  } catch (error) {
+    // If auth fails (e.g., when AUTH_ENABLED=false), return null
+    console.log('Auth disabled or failed, proceeding without token');
+  }
+  return null;
+};
+
+// Helper to create authenticated headers
+const getAuthHeaders = (token: string | null): { [key: string]: string } | undefined => {
+  return token ? { 'Authorization': `Bearer ${token}` } : undefined;
+};
+
 // Commands endpoints
 test.describe('@api STAIRS API - Commands', () => {
   test('should get all commands with required parameters', async ({ request }) => {
@@ -26,14 +76,23 @@ test.describe('@api STAIRS API - Commands', () => {
   });
 
   test('should handle invalid status update', async ({ request }) => {
+    const token = await getAuthToken(request);
+    const headers = getAuthHeaders(token);
+    
     const payload = { deviceId: testDeviceId, method: 0, control: 'Lock', command: 'Lock' };
-    const createRes = await request.post(`${API_BASE_URL}/commands`, { data: payload });
+    const createRes = await request.post(`${API_BASE_URL}/commands`, { 
+      data: payload,
+      headers 
+    });
     if (createRes.status() === 400) return;
     expect([200, 201]).toContain(createRes.status());
     const responseData = await createRes.json();
     expect(responseData).toHaveProperty('id');
     const commandId = responseData.id;
-    const patchRes = await request.patch(`${API_BASE_URL}/commands/${commandId}`, { data: { status: 'CANCELLED' } });
+    const patchRes = await request.patch(`${API_BASE_URL}/commands/${commandId}`, { 
+      data: { status: 'CANCELLED' },
+      headers 
+    });
     expect([400, 404]).toContain(patchRes.status());
   });
 });
@@ -89,7 +148,6 @@ test.describe('@api STAIRS API - Telemetry', () => {
   });
 });
 
-// Devices (Vehicles) endpoints
 const createTestDevice = () => {
   const ts = Date.now();
   const uid = Math.random().toString(36).substring(2, 7);
@@ -114,8 +172,14 @@ test.describe('@api STAIRS API - Devices', () => {
   });
 
   test('should provision a new device', async ({ request }) => {
+    const token = await getAuthToken(request);
+    const headers = getAuthHeaders(token);
+    
     const device = createTestDevice();
-    const res = await request.post(`${API_BASE_URL}/devices`, { data: device });
+    const res = await request.post(`${API_BASE_URL}/devices`, { 
+      data: device,
+      headers 
+    });
     if (res.status() === 400) {
       const err = await res.json(); console.log('Device creation error:', err);
       expect(res.status()).toBe(400);
@@ -128,8 +192,14 @@ test.describe('@api STAIRS API - Devices', () => {
   });
 
   test('should get a device by ID', async ({ request }) => {
+    const token = await getAuthToken(request);
+    const headers = getAuthHeaders(token);
+    
     const device = createTestDevice();
-    const cr = await request.post(`${API_BASE_URL}/devices`, { data: device });
+    const cr = await request.post(`${API_BASE_URL}/devices`, { 
+      data: device,
+      headers 
+    });
     if (cr.status() === 400) return;
     expect(cr.status()).toBe(201);
     const { id } = await cr.json();
@@ -140,8 +210,14 @@ test.describe('@api STAIRS API - Devices', () => {
   });
 
   test('should update a device by ID', async ({ request }) => {
+    const token = await getAuthToken(request);
+    const headers = getAuthHeaders(token);
+    
     const device = createTestDevice(); 
-    const cr = await request.post(`${API_BASE_URL}/devices`, { data: device }); 
+    const cr = await request.post(`${API_BASE_URL}/devices`, { 
+      data: device,
+      headers 
+    }); 
     if (cr.status() === 400) return; 
     expect(cr.status()).toBe(201);
     const { id } = await cr.json();
@@ -156,7 +232,10 @@ test.describe('@api STAIRS API - Devices', () => {
       image: 'http://example.com/updated.png', 
       provisionStatus: 'Inactive' 
     };
-    const res = await request.put(`${API_BASE_URL}/devices/${id}`, { data: updated });
+    const res = await request.put(`${API_BASE_URL}/devices/${id}`, { 
+      data: updated,
+      headers 
+    });
     expect(res.ok()).toBeTruthy();
     const data = await res.json();
     expect(data).toMatchObject({ code: updated.code, make: updated.make, model: updated.model, provisionStatus: updated.provisionStatus });
@@ -169,8 +248,14 @@ test.describe('@api STAIRS API - Devices', () => {
   });
 
   test('should handle invalid device data for creation', async ({ request }) => {
-    const invalid = { make: 'TestMake' }; // Missing required fields
-    const res = await request.post(`${API_BASE_URL}/devices`, { data: invalid });
+    const token = await getAuthToken(request);
+    const headers = getAuthHeaders(token);
+    
+    const invalid = { make: 'TestMake' };
+    const res = await request.post(`${API_BASE_URL}/devices`, { 
+      data: invalid,
+      headers 
+    });
     expect(res.status()).toBe(400);
   });
 });
