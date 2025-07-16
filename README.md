@@ -60,10 +60,15 @@ git clone https://github.com/OpenTier/STAIRS.git
 cd STAIRS
 ```
 
-2. Initialize and update the git submodules:
+2. (Optional) Initialize the git submodules used for demos:
 ```sh
 git submodule update --init --recursive
 ```
+
+#### Submodule Handling
+Submodules provide demo content and API definitions. If you skipped initializing
+them, comment out the `device` service in `docker-compose.yaml` or provide your
+own device implementation.
 
 3. Compose the platform:
 - Option 1 (recommended): with [observability stack](./monitoring/README.md) and [REST APIs](./cloud/backend/stairs_api/README.md) integration:
@@ -80,12 +85,21 @@ Once the platform is up:
 * Go to [http://localhost:5000](http://localhost:5000) to see the dashboard (option 1)
 * Go to [http://localhost:3001/docs](http://localhost:3001/docs) to see the REST APIs documentation and interact with them
 
+
 ## 📖 Documentation
 - [Architecture](doc/architecture.md)
 - [(How To) Guides](./doc/how-to.md)
 - [Roadmap](doc/roadmap.md)
 - [Contribution guidelines](CONTRIBUTING.md)
-- [License file](LICENSE.md)
+- [License file](LICENSE)
+- [Build tools](doc/build_tools.md)
+
+
+## 📦 Release Management
+We track changes in [CHANGELOG](doc/changelog.md). To cut a new release:
+1. Add a version entry in the changelog.
+2. Tag the commit, for example: `git tag -a v0.1.1 -m "Release v0.1.1"`.
+3. Push the tag with `git push origin --tags`.
 
 ## ⚠️ Security Disclaimer
 Note: For simplicity and ease of setup, database credentials and other secrets are stored directly in the `docker-compose.yml` file.
